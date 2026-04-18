@@ -777,20 +777,28 @@ function addRow(v){
     </div></td>
     <td class="cdel"><button class="dbt" onclick="delR('${id}')">×</button></td>`;
   $('ptb').appendChild(tr);
-  pecas.push({id,nome:n,c:parseFloat(C)||0,l:parseFloat(L)||0,q:parseInt(q)||1,borda:brd,esp:parseInt(esp)||15,veio:'C'});
+  const cVal=parseFloat(C)||0, lVal=parseFloat(L)||0;
+  pecas.push({id,nome:n,c:cVal,l:lVal,q:parseInt(q)||1,borda:brd,esp:parseInt(esp)||15,veio:'C'});
   updCnt();
-  // Desenha miniaturas de veio
-  setTimeout(()=>{drawVeioMini(id+'_cv_c','C');drawVeioMini(id+'_cv_l','L');},50);
+  // Verifica se cor madeirada e inicializa veio
+  const corAtualNow=$('ncor')?($('ncor').options[$('ncor').selectedIndex]?.text||''):'';
+  const temVeioNow=isMadeirada(corAtualNow);
+  const cell=document.getElementById(id+'-veio-cell');
+  if(cell)cell.style.display=temVeioNow?'table-cell':'none';
+  setTimeout(()=>{
+    drawVeioMini(id+'-cv-c','C',cVal,lVal);
+    drawVeioMini(id+'-cv-l','L',cVal,lVal);
+  },80);
 }
 function sP(id){
   const p=pecas.find(x=>x.id===id);if(!p)return;
   const n=$(id+'-n'),c=$(id+'-c'),l=$(id+'-l'),q=$(id+'-q'),e=$(id+'-esp');
   if(n)p.nome=n.value.trim();if(c)p.c=parseFloat(c.value)||0;if(l)p.l=parseFloat(l.value)||0;if(q)p.q=parseInt(q.value)||1;if(e)p.esp=parseInt(e.value)||15;
-  // Redesenha veio se dimensões mudaram
+  // Redesenha veio com novas medidas
   const corAtual=$('ncor')?($('ncor').options[$('ncor').selectedIndex]?.text||''):'';
   if(isMadeirada(corAtual)){
-    drawVeioMini(id+'-cv-c','C',corAtual);
-    drawVeioMini(id+'-cv-l','L',corAtual);
+    const pp=pecas.find(x=>x.id===id);
+    if(pp){drawVeioMini(id+'-cv-c','C',pp.c,pp.l);drawVeioMini(id+'-cv-l','L',pp.c,pp.l);}
   }
 }
 function tB(id,s,btn){const p=pecas.find(x=>x.id===id);if(!p)return;p.borda[s]=!p.borda[s];btn.classList.toggle('on',p.borda[s]);}
@@ -817,8 +825,8 @@ function doImport(){
 // ══ CALCULAR — GUILHOTINADO BAF ══
 function calcular(){
   pecas.forEach(p=>{
-    const n=$(p.id+'-n'),c=$(p.id+'-c'),l=$(p.id+'-l'),q=$(p.id+'-q');
-    if(n)p.nome=n.value.trim();if(c)p.c=parseFloat(c.value)||0;if(l)p.l=parseFloat(l.value)||0;if(q)p.q=parseInt(q.value)||1;
+    const n=$(p.id+'-n'),c=$(p.id+'-c'),l=$(p.id+'-l'),q=$(p.id+'-q'),e=$(p.id+'-esp');
+    if(n)p.nome=n.value.trim();if(c)p.c=parseFloat(c.value)||0;if(l)p.l=parseFloat(l.value)||0;if(q)p.q=parseInt(q.value)||1;if(e)p.esp=parseInt(e.value)||15;
   });
   const val=pecas.filter(p=>p.c>0&&p.l>0);
   if(!val.length){toast('Adicione pelo menos 1 peça com dimensões');return;}
@@ -901,6 +909,22 @@ function drawCanvas(cid,chs,idx,CW,CH){
     const cor=cm[p.nome||p.c+'×'+p.l]||CORES[seq%CORES.length];
     ctx.globalAlpha=.82;ctx.fillStyle=cor;ctx.beginPath();ctx.roundRect(x+.5,y+.5,w-1,h-1,2);ctx.fill();
     ctx.globalAlpha=1;ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(x+.5,y+.5,w-1,h-1,2);ctx.stroke();
+    // Veio no plano de corte
+    if(typeof isMadeirada==='function'){
+      const corP=$('ncor')?($('ncor').options[$('ncor').selectedIndex]?.text||''):'';
+      if(isMadeirada(corP)&&w>20&&h>20){
+        const vd=p.veio||'C';
+        ctx.save();ctx.beginPath();ctx.roundRect(x+.5,y+.5,w-1,h-1,2);ctx.clip();
+        ctx.strokeStyle='rgba(255,255,255,.2)';ctx.lineWidth=0.8;ctx.setLineDash([]);
+        if(vd==='C'){for(let lx=x+4;lx<x+w;lx+=6){ctx.beginPath();ctx.moveTo(lx,y);ctx.bezierCurveTo(lx+2,y+h/3,lx-2,y+h*2/3,lx+1,y+h);ctx.stroke();}}
+        else{for(let ly=y+4;ly<y+h;ly+=6){ctx.beginPath();ctx.moveTo(x,ly);ctx.bezierCurveTo(x+w/3,ly+2,x+w*2/3,ly-2,x+w,ly+1);ctx.stroke();}}
+        ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=1.5;
+        const mx=x+w/2,my=y+h/2;
+        if(vd==='C'&&h>28){ctx.beginPath();ctx.moveTo(mx,y+6);ctx.lineTo(mx,y+h-6);ctx.stroke();ctx.beginPath();ctx.moveTo(mx-4,y+11);ctx.lineTo(mx,y+6);ctx.lineTo(mx+4,y+11);ctx.stroke();ctx.beginPath();ctx.moveTo(mx-4,y+h-11);ctx.lineTo(mx,y+h-6);ctx.lineTo(mx+4,y+h-11);ctx.stroke();}
+        else if(vd==='L'&&w>28){ctx.beginPath();ctx.moveTo(x+6,my);ctx.lineTo(x+w-6,my);ctx.stroke();ctx.beginPath();ctx.moveTo(x+11,my-4);ctx.lineTo(x+6,my);ctx.lineTo(x+11,my+4);ctx.stroke();ctx.beginPath();ctx.moveTo(x+w-11,my-4);ctx.lineTo(x+w-6,my);ctx.lineTo(x+w-11,my+4);ctx.stroke();}
+        ctx.restore();
+      }
+    }
     ctx.strokeStyle='#fff';ctx.lineWidth=2.5;ctx.setLineDash([4,3]);
     const bd=p.borda||{};
     if(bd.t){ctx.beginPath();ctx.moveTo(x+2,y+2.5);ctx.lineTo(x+w-2,y+2.5);ctx.stroke();}
@@ -1050,68 +1074,97 @@ function onCorChange(){
   const temVeio=isMadeirada(cor);
   // Mostra/esconde coluna de veio em todas as linhas
   document.querySelectorAll('[id$="-veio-cell"]').forEach(td=>{
-    td.style.display=temVeio?'':'none';
+    td.style.display=temVeio?'table-cell':'none';
   });
   const th=$('th-veio');
   if(th)th.style.display=temVeio?'':'none';
-  // Redesenha miniaturas com a cor
-  pecas.forEach(p=>{
-    drawVeioMini(p.id+'-cv-c','C',cor);
-    drawVeioMini(p.id+'-cv-l','L',cor);
-  });
+  if(temVeio){
+    // Desenha miniaturas em todas as peças com as medidas
+    pecas.forEach(p=>{
+      setTimeout(()=>{
+        drawVeioMini(p.id+'-cv-c','C',p.c,p.l);
+        drawVeioMini(p.id+'-cv-l','L',p.c,p.l);
+      },80);
+    });
+  }
 }
 
-function drawVeioMini(canvasId, dir, cor){
+function drawVeioMini(canvasId, dir, compC, largL){
   const cv=document.getElementById(canvasId);
   if(!cv)return;
   const ctx=cv.getContext('2d');
-  const W=cv.width,H=cv.height;
+  // Dimensiona canvas proporcional às medidas da peça
+  const C=compC||100, L=largL||100;
+  const MAX=64;
+  let W,H;
+  if(dir==='C'){
+    // Veio no comprimento: peça retrata C na vertical
+    const ratio=Math.min(1,C/L);
+    W=Math.max(32,Math.round(MAX*Math.min(1,L/C)));
+    H=MAX;
+  } else {
+    // Veio na largura: peça retrata L na horizontal
+    W=MAX;
+    H=Math.max(32,Math.round(MAX*Math.min(1,C/L)));
+  }
+  cv.width=W; cv.height=H;
   // Fundo madeira
-  ctx.fillStyle='#C8A882';
+  const grad=ctx.createLinearGradient(0,0,W,H);
+  grad.addColorStop(0,'#D4A96A');grad.addColorStop(.5,'#C8975A');grad.addColorStop(1,'#B8864A');
+  ctx.fillStyle=grad;
   ctx.fillRect(0,0,W,H);
   // Linhas de veio
-  ctx.strokeStyle='rgba(100,60,20,.35)';
-  ctx.lineWidth=1;
+  ctx.strokeStyle='rgba(80,40,10,.3)';
+  ctx.lineWidth=0.8;
   if(dir==='C'){
-    // Veio vertical (no comprimento)
-    for(let x=4;x<W;x+=6){
-      ctx.beginPath();
-      ctx.moveTo(x,0);
-      ctx.bezierCurveTo(x+2,H/3,x-2,H*2/3,x+1,H);
-      ctx.stroke();
+    for(let x=3;x<W;x+=5){
+      ctx.beginPath();ctx.moveTo(x,0);
+      ctx.bezierCurveTo(x+1.5,H/3,x-1.5,H*2/3,x+1,H);ctx.stroke();
     }
-    // Seta indicadora
-    ctx.strokeStyle='rgba(0,0,0,.6)';ctx.lineWidth=1.5;
-    ctx.beginPath();ctx.moveTo(W/2,3);ctx.lineTo(W/2,H-3);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(W/2-3,7);ctx.lineTo(W/2,3);ctx.lineTo(W/2+3,7);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(W/2-3,H-7);ctx.lineTo(W/2,H-3);ctx.lineTo(W/2+3,H-7);ctx.stroke();
   } else {
-    // Veio horizontal (na largura)
-    for(let y=4;y<H;y+=6){
-      ctx.beginPath();
-      ctx.moveTo(0,y);
-      ctx.bezierCurveTo(W/3,y+2,W*2/3,y-2,W,y+1);
-      ctx.stroke();
+    for(let y=3;y<H;y+=5){
+      ctx.beginPath();ctx.moveTo(0,y);
+      ctx.bezierCurveTo(W/3,y+1.5,W*2/3,y-1.5,W,y+1);ctx.stroke();
     }
-    // Seta indicadora
-    ctx.strokeStyle='rgba(0,0,0,.6)';ctx.lineWidth=1.5;
-    ctx.beginPath();ctx.moveTo(3,H/2);ctx.lineTo(W-3,H/2);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(7,H/2-3);ctx.lineTo(3,H/2);ctx.lineTo(7,H/2+3);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(W-7,H/2-3);ctx.lineTo(W-3,H/2);ctx.lineTo(W-7,H/2+3);ctx.stroke();
+  }
+  // Seta de direção do veio
+  ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=1.5;
+  if(dir==='C'){
+    const mx=W/2;
+    ctx.beginPath();ctx.moveTo(mx,4);ctx.lineTo(mx,H-4);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(mx-4,9);ctx.lineTo(mx,4);ctx.lineTo(mx+4,9);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(mx-4,H-9);ctx.lineTo(mx,H-4);ctx.lineTo(mx+4,H-9);ctx.stroke();
+  } else {
+    const my=H/2;
+    ctx.beginPath();ctx.moveTo(4,my);ctx.lineTo(W-4,my);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(9,my-4);ctx.lineTo(4,my);ctx.lineTo(9,my+4);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(W-9,my-4);ctx.lineTo(W-4,my);ctx.lineTo(W-9,my+4);ctx.stroke();
+  }
+  // Medidas na miniatura
+  ctx.fillStyle='rgba(255,255,255,.95)';
+  ctx.font='bold 8px Inter,sans-serif';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  if(dir==='C'&&C&&L){
+    // Mostra C na lateral vertical, L na horizontal
+    ctx.save();ctx.translate(W/2,H/2);ctx.rotate(-Math.PI/2);
+    ctx.fillText(C+'mm',0,0);ctx.restore();
+  } else if(dir==='L'&&C&&L){
+    ctx.fillText(L+'mm',W/2,H/2);
   }
   // Borda
-  ctx.strokeStyle='rgba(0,0,0,.2)';ctx.lineWidth=1;
-  ctx.strokeRect(0,0,W,H);
+  ctx.strokeStyle='rgba(0,0,0,.25)';ctx.lineWidth=1;ctx.strokeRect(0,0,W,H);
 }
 
 function setVeio(id,dir){
   const p=pecas.find(x=>x.id===id);if(!p)return;
   p.veio=dir;
-  // Atualiza visual selecionado
   const vc=document.getElementById(id+'-vc');
   const vl=document.getElementById(id+'-vl');
   if(vc)vc.classList.toggle('sel',dir==='C');
   if(vl)vl.classList.toggle('sel',dir==='L');
+  // Atualiza medidas nas miniaturas ao selecionar
+  drawVeioMini(id+'-cv-c','C',p.c,p.l);
+  drawVeioMini(id+'-cv-l','L',p.c,p.l);
 }
 
 
