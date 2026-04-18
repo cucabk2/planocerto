@@ -179,6 +179,13 @@ canvas{width:100%;height:auto;display:block;border:var(--bd);border-radius:4px;}
 .ei{font-size:36px;margin-bottom:10px;}.et{font-size:16px;font-weight:600;color:var(--g700);margin-bottom:6px;}.eb{font-size:13px;line-height:1.6;}
 
 /* TOAST */
+.veio-wrap{display:flex;align-items:center;gap:8px;padding:4px 8px;}
+.veio-mini{position:relative;border:1.5px solid var(--g300);border-radius:3px;overflow:hidden;flex-shrink:0;cursor:pointer;transition:border-color .15s;}
+.veio-mini:hover{border-color:var(--gd);}
+.veio-mini.sel{border-color:var(--gd);box-shadow:0 0 0 2px rgba(30,132,73,.2);}
+.veio-mini canvas{display:block;}
+.veio-label{font-size:10px;color:var(--g500);text-align:center;margin-top:2px;font-weight:500;}
+.veio-dir{font-size:11px;color:var(--gd);font-weight:600;}
 .toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--g900);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:300;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
@@ -313,26 +320,35 @@ canvas{width:100%;height:auto;display:block;border:var(--bd);border-radius:4px;}
           </div>
           <div class="g2">
             <div>
-              <label class="fl">Espessura do MDF</label>
-              <div class="mo" id="mats">
-                <button class="mb" data-mm="6" onclick="sMat(this)">6mm</button>
-                <button class="mb active" data-mm="15" onclick="sMat(this)">15mm</button>
-                <button class="mb" data-mm="18" onclick="sMat(this)">18mm</button>
-                <button class="mb" data-mm="25" onclick="sMat(this)">25mm</button>
-              </div>
-            </div>
-            <div>
               <label class="fl">Tamanho da chapa</label>
-              <select class="fs" id="nch" style="margin-top:8px;">
+              <select class="fs" id="nch">
                 <option value="2750x1840">Chapa inteira — 2750×1840mm</option>
                 <option value="2750x1220">Meia chapa — 2750×1220mm</option>
                 <option value="1840x920">1/4 de chapa — 1840×920mm</option>
               </select>
             </div>
+            <div>
+              <label class="fl">Marca do MDF</label>
+              <select class="fs" id="nmarca" onchange="rCores()">
+                <option value="">Selecione a marca...</option>
+                <option>Flora</option>
+                <option>Duratex</option>
+                <option>Guararapes</option>
+                <option>Arauco</option>
+                <option>Placas Brasil</option>
+                <option>Fibraplac</option>
+              </select>
+            </div>
           </div>
-          <div class="fg" style="margin-bottom:0;">
+          <div class="fg mt12">
             <label class="fl">Cor / acabamento</label>
-            <input class="fi" id="ncor" placeholder="Ex: Branco TX, Carvalho Nevada, Grafite...">
+            <select class="fs" id="ncor">
+              <option value="">— Selecione a marca primeiro —</option>
+            </select>
+          </div>
+          <!-- INFO: espessura é por peça na tabela abaixo -->
+          <div style="background:var(--gll);border:1px solid var(--gl);border-radius:var(--rs);padding:10px 14px;margin-top:4px;font-size:12px;color:var(--gd);">
+            💡 A <strong>espessura do MDF</strong> é definida por peça na tabela abaixo — você pode misturar 15mm e 6mm no mesmo serviço.
           </div>
         </div>
         <!-- Peças card -->
@@ -349,10 +365,12 @@ canvas{width:100%;height:auto;display:block;border:var(--bd);border-radius:4px;}
               <thead><tr>
                 <th style="width:36px;text-align:center;">#</th>
                 <th>Nome / Função</th>
-                <th style="width:105px;">Compr. C (mm)</th>
-                <th style="width:105px;">Larg. L (mm)</th>
-                <th style="width:70px;">Qtd</th>
-                <th style="width:130px;">Fita de borda</th>
+                <th style="width:90px;">Compr. C</th>
+                <th style="width:90px;">Larg. L</th>
+                <th style="width:60px;">Qtd</th>
+                <th style="width:80px;">Espessura</th>
+                <th style="width:100px;" id="th-veio" style="display:none;">Veio</th>
+                <th style="width:120px;">Fita de borda</th>
                 <th style="width:40px;"></th>
               </tr></thead>
               <tbody id="ptb"></tbody>
@@ -708,36 +726,72 @@ function checkNotifs(meus){
 // ══ NOVO SERVIÇO ══
 function rNovo(){
   pecas=[];rid=0;
-  if($('nn'))$('nn').value='';if($('ncor'))$('ncor').value='';
-  mat=15;document.querySelectorAll('.mb').forEach(b=>{b.classList.remove('active');if(b.dataset.mm==='15')b.classList.add('active');});
+  if($('nn'))$('nn').value='';
+  if($('nmarca'))$('nmarca').value='';
+  if($('ncor')){$('ncor').innerHTML='<option value="">— Selecione a marca primeiro —</option>';}
   if($('nch'))$('nch').value='2750x1840';
   if($('ptb'))$('ptb').innerHTML='';updCnt();addRow();
 }
 function sMat(b){document.querySelectorAll('.mb').forEach(x=>x.classList.remove('active'));b.classList.add('active');mat=parseInt(b.dataset.mm);}
 function addRow(v){
   rid++;const id='r'+rid;
-  const n=v?v.nome:'',C=v?v.c:'',L=v?v.l:'',q=v?v.q:1,brd=v?v.brd:{t:false,b:false,l:false,r:false};
+  const n=v?v.nome:'',C=v?v.c:'',L=v?v.l:'',q=v?v.q:1,brd=v?v.brd:{t:false,b:false,l:false,r:false},esp=v?v.esp:15,veio=v?v.veio||'C':'C';
   const idx=$('ptb').children.length+1;
   const tr=document.createElement('tr');tr.id='row-'+id;
   tr.innerHTML=`<td class="cnum">${idx}</td>
-    <td><input class="ci" id="${id}-n" value="${n}" placeholder="Lateral, Porta, Prateleira..." onchange="sP('${id}')"></td>
-    <td><input class="ci" id="${id}-c" type="number" value="${C}" placeholder="600" inputmode="numeric" style="max-width:90px" onchange="sP('${id}')"></td>
-    <td><input class="ci" id="${id}-l" type="number" value="${L}" placeholder="400" inputmode="numeric" style="max-width:90px" onchange="sP('${id}')"></td>
-    <td><input class="ci" id="${id}-q" type="number" value="${q}" placeholder="1" inputmode="numeric" style="max-width:55px" onchange="sP('${id}')"></td>
+    <td><input class="ci" id="${id}-n" value="${n}" placeholder="Lateral, Porta..." onchange="sP('${id}')"></td>
+    <td><input class="ci" id="${id}-c" type="number" value="${C}" placeholder="600" inputmode="numeric" style="max-width:80px" onchange="sP('${id}')"></td>
+    <td><input class="ci" id="${id}-l" type="number" value="${L}" placeholder="400" inputmode="numeric" style="max-width:80px" onchange="sP('${id}')"></td>
+    <td><input class="ci" id="${id}-q" type="number" value="${q}" placeholder="1" inputmode="numeric" style="max-width:50px" onchange="sP('${id}')"></td>
+    <td>
+      <select class="ci" id="${id}-esp" onchange="sP('${id}')" style="font-size:12px;padding:8px 4px;">
+        <option value="6" ${esp==6?'selected':''}>6mm</option>
+        <option value="9" ${esp==9?'selected':''}>9mm</option>
+        <option value="12" ${esp==12?'selected':''}>12mm</option>
+        <option value="15" ${esp==15?'selected':''}>15mm</option>
+        <option value="18" ${esp==18?'selected':''}>18mm</option>
+        <option value="25" ${esp==25?'selected':''}>25mm</option>
+      </select>
+    </td>
+    <td id="${id}-veio-cell" style="display:none;">
+      <div class="veio-wrap">
+        <div>
+          <div class="veio-mini ${veio==='C'?'sel':''}" id="${id}-vc" onclick="setVeio('${id}','C')" title="Veio no Comprimento (↕)">
+            <canvas id="${id}-cv-c" width="32" height="48"></canvas>
+            <div class="veio-label">↕ C</div>
+          </div>
+        </div>
+        <div>
+          <div class="veio-mini ${veio==='L'?'sel':''}" id="${id}-vl" onclick="setVeio('${id}','L')" title="Veio na Largura (↔)">
+            <canvas id="${id}-cv-l" width="48" height="32"></canvas>
+            <div class="veio-label">↔ L</div>
+          </div>
+        </div>
+      </div>
+    </td>
     <td><div class="bc">
-      <button class="bb ${brd.t?'on':''}" title="Cima (C)" onclick="tB('${id}','t',this)">C</button>
-      <button class="bb ${brd.b?'on':''}" title="Baixo (B)" onclick="tB('${id}','b',this)">B</button>
-      <button class="bb ${brd.l?'on':''}" title="Esquerda (E)" onclick="tB('${id}','l',this)">E</button>
-      <button class="bb ${brd.r?'on':''}" title="Direita (D)" onclick="tB('${id}','r',this)">D</button>
+      <button class="bb ${brd.t?'on':''}" title="Cima" onclick="tB('${id}','t',this)">C</button>
+      <button class="bb ${brd.b?'on':''}" title="Baixo" onclick="tB('${id}','b',this)">B</button>
+      <button class="bb ${brd.l?'on':''}" title="Esq" onclick="tB('${id}','l',this)">E</button>
+      <button class="bb ${brd.r?'on':''}" title="Dir" onclick="tB('${id}','r',this)">D</button>
     </div></td>
     <td class="cdel"><button class="dbt" onclick="delR('${id}')">×</button></td>`;
   $('ptb').appendChild(tr);
-  pecas.push({id,nome:n,c:parseFloat(C)||0,l:parseFloat(L)||0,q:parseInt(q)||1,borda:brd});updCnt();
+  pecas.push({id,nome:n,c:parseFloat(C)||0,l:parseFloat(L)||0,q:parseInt(q)||1,borda:brd,esp:parseInt(esp)||15,veio:'C'});
+  updCnt();
+  // Desenha miniaturas de veio
+  setTimeout(()=>{drawVeioMini(id+'_cv_c','C');drawVeioMini(id+'_cv_l','L');},50);
 }
 function sP(id){
   const p=pecas.find(x=>x.id===id);if(!p)return;
-  const n=$(id+'-n'),c=$(id+'-c'),l=$(id+'-l'),q=$(id+'-q');
-  if(n)p.nome=n.value.trim();if(c)p.c=parseFloat(c.value)||0;if(l)p.l=parseFloat(l.value)||0;if(q)p.q=parseInt(q.value)||1;
+  const n=$(id+'-n'),c=$(id+'-c'),l=$(id+'-l'),q=$(id+'-q'),e=$(id+'-esp');
+  if(n)p.nome=n.value.trim();if(c)p.c=parseFloat(c.value)||0;if(l)p.l=parseFloat(l.value)||0;if(q)p.q=parseInt(q.value)||1;if(e)p.esp=parseInt(e.value)||15;
+  // Redesenha veio se dimensões mudaram
+  const corAtual=$('ncor')?($('ncor').options[$('ncor').selectedIndex]?.text||''):'';
+  if(isMadeirada(corAtual)){
+    drawVeioMini(id+'-cv-c','C',corAtual);
+    drawVeioMini(id+'-cv-l','L',corAtual);
+  }
 }
 function tB(id,s,btn){const p=pecas.find(x=>x.id===id);if(!p)return;p.borda[s]=!p.borda[s];btn.classList.toggle('on',p.borda[s]);}
 function delR(id){
@@ -769,17 +823,27 @@ function calcular(){
   const val=pecas.filter(p=>p.c>0&&p.l>0);
   if(!val.length){toast('Adicione pelo menos 1 peça com dimensões');return;}
   pNome=$('nn').value.trim()||'Serviço sem nome';
-  pCor=$('ncor').value.trim()||'';
+  const marcaSel=$('nmarca')?$('nmarca').value:'';
+  const corSel=$('ncor')?$('ncor').options[$('ncor').selectedIndex]?.text:'';
+  pCor=(corSel&&corSel.indexOf('Selecione')<0)?corSel:'';
+  if(marcaSel)pCor=(marcaSel+' — '+pCor).replace(' — ','');
   const cs=$('nch').value||'2750x1840';
   const[CW,CH]=cs.split('x').map(Number);const KERF=4;
-  let all=[];val.forEach(p=>{for(let i=0;i<p.q;i++)all.push({...p,_i:p.id+'_'+i});});
-  all.sort((a,b)=>(b.c*b.l)-(a.c*a.l));
-  chapas=[];let rem=[...all];
-  while(rem.length>0){
-    let sp=[{x:0,y:0,w:CW,h:CH}];let shPcs=[];let np=[];
-    for(const pc of rem){const r=gbaf(sp,pc,KERF);if(r){shPcs.push({...pc,px:r.px,py:r.py,pw:r.pw,ph:r.ph});sp=r.sp;}else np.push(pc);}
-    if(!shPcs.length)break;chapas.push({w:CW,h:CH,pc:shPcs});rem=np;
-  }
+  // Agrupa por espessura — cada espessura vira grupo de chapas separado
+  const espGroups={};
+  val.forEach(p=>{const e=p.esp||15;if(!espGroups[e])espGroups[e]=[];espGroups[e].push(p);});
+  chapas=[];
+  Object.keys(espGroups).sort((a,b)=>b-a).forEach(esp=>{
+    const grp=espGroups[esp];
+    let all=[];grp.forEach(p=>{for(let i=0;i<p.q;i++)all.push({...p,_i:p.id+'_'+i,_esp:parseInt(esp)});});
+    all.sort((a,b)=>(b.c*b.l)-(a.c*a.l));
+    let rem=[...all];
+    while(rem.length>0){
+      let sp=[{x:0,y:0,w:CW,h:CH}];let shPcs=[];let np=[];
+      for(const pc of rem){const r=gbaf(sp,pc,KERF);if(r){shPcs.push({...pc,px:r.px,py:r.py,pw:r.pw,ph:r.ph});sp=r.sp;}else np.push(pc);}
+      if(!shPcs.length)break;chapas.push({w:CW,h:CH,pc:shPcs,esp:parseInt(esp)});rem=np;
+    }
+  });
   const tA=chapas.length*CW*CH,uA=all.reduce((a,p)=>a+p.c*p.l,0),ap=Math.round(uA/tA*100);
   $('rc').textContent=chapas.length;$('ra').textContent=ap+'%';$('rp').textContent=all.length;$('pi-ap').textContent=ap+'%';
   const nc=chapas.length,matV=nc*(PRECOS.mat[mat]||150),corV=nc*PRECOS.corte;
@@ -788,14 +852,18 @@ function calcular(){
   $('oc').textContent=nc;$('om').textContent=fmt(matV);$('oco').textContent=fmt(corV);$('ob').textContent=fmt(bV);$('ot').textContent=fmt(tot);
   $('pi-n').textContent=pNome;$('pi-m').textContent=mat+'mm';$('pi-c').textContent=CW+'×'+CH+'mm';$('pi-cor').textContent=pCor||'—';
   $('ptit').textContent='Plano — '+pNome;$('psub').textContent='MDF '+mat+'mm'+(pCor?' · '+pCor:'')+' | '+chapas.length+' chapa(s) | '+ap+'%';
-  $('ctabs').innerHTML=chapas.map((_,i)=>`<button class="ct2 ${i===0?'active':''}" onclick="shCh(${i})">Chapa ${i+1}</button>`).join('');
+  $('ctabs').innerHTML=chapas.map((ch,i)=>`<button class="ct2 ${i===0?'active':''}" onclick="shCh(${i})">Chapa ${i+1}${ch.esp?' ('+ch.esp+'mm)':''}</button>`).join('');
   cidx=0;drawCanvas('cv',chapas,0,CW,CH);rSob(0,CW,CH);rPPL('ppl',chapas,0);nav('plano');
 }
 function gbaf(sp,pc,k){
   let ba=Infinity,bi=-1,br=false;
+  // Verifica se cor atual é madeirada — sem rotação para madeiradas
+  const corAtual=$('ncor')?($('ncor').options[$('ncor').selectedIndex]?.text||''):'';
+  const semRotacao=isMadeirada(corAtual)||(pc.veio&&pc.veio!==false);
   sp.forEach((s,i)=>{
     if(pc.c<=s.w&&pc.l<=s.h){const a=s.w*s.h-pc.c*pc.l;if(a<ba){ba=a;bi=i;br=false;}}
-    if(pc.l<=s.w&&pc.c<=s.h){const a=s.w*s.h-pc.l*pc.c;if(a<ba){ba=a;bi=i;br=true;}}
+    // Só rotaciona se NÃO for madeirada
+    if(!semRotacao&&pc.l<=s.w&&pc.c<=s.h){const a=s.w*s.h-pc.l*pc.c;if(a<ba){ba=a;bi=i;br=true;}}
   });
   if(bi<0)return null;
   const s=sp[bi];const fw=br?pc.l:pc.c,fh=br?pc.c:pc.l;
@@ -855,10 +923,11 @@ function rSob(idx,CW,CH){
 }
 function rPPL(elId,chs,idx){
   const ch=chs[idx];if(!ch){$(elId).innerHTML='';return;}
-  $(elId).innerHTML='<div style="font-size:10px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px;">Peças desta chapa</div>'+
-    '<table><thead><tr><th>Seq.</th><th>Nome</th><th>Compr. C</th><th>Larg. L</th><th>Borda</th></tr></thead><tbody>'+
+  const espLabel=ch.esp?'MDF '+ch.esp+'mm':'';
+  $(elId).innerHTML='<div style="font-size:10px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px;">Peças desta chapa'+( espLabel?' — '+espLabel:'')+' </div>'+
+    '<table><thead><tr><th>Seq.</th><th>Nome</th><th>Compr. C</th><th>Larg. L</th><th>Esp.</th><th>Borda</th></tr></thead><tbody>'+
     ch.pc.map((p,i)=>{const b=p.borda||{},bl=[b.t?'C':'',b.b?'B':'',b.l?'E':'',b.r?'D':''].filter(Boolean).join('');
-      return`<tr><td>${i+1}</td><td>${p.nome||'—'}</td><td>${p.c}mm</td><td>${p.l}mm</td><td>${bl||'—'}</td></tr>`;}).join('')+'</tbody></table>';
+      return`<tr><td>${i+1}</td><td>${p.nome||'—'}</td><td>${p.c}mm</td><td>${p.l}mm</td><td>${p._esp||p.esp||'—'}mm</td><td>${bl||'—'}</td></tr>`;}).join('')+'</tbody></table>';
 }
 
 // ══ ENVIO PARA LOJA ══
@@ -913,6 +982,153 @@ async function confirmarEnvio(){
   closeOv('ov-envio');
   toast('✓ Pedido enviado para '+(loja?.nome||lojaSelNome)+'!',3000);
   nav('pedidos');
+}
+
+
+var MARCAS_CORES = {
+  'Flora': [
+    'Branco Polar','Branco Natural','Areia','Camurça','Capuccino','Café','Tabaco',
+    'Preto Fosco','Cinza Chumbo','Cinza Claro','Grafite','Azul Niagara','Verde Musgo',
+    'Terracota','Amarelo Ouro','Carvalho Nevada','Carvalho Europeu','Carvalho Dallas',
+    'Carvalho Apuí','Freijó','Teca','Nogal','Imbuia','Amendoa','Wengue',
+    'Pérola','Malva','Rosê','Jade','Bordo'
+  ],
+  'Duratex': [
+    'Branco Neve','Branco Algodão','Branco TX','Off White','Creme','Camelo','Bege',
+    'Cinza Platina','Cinza Fendi','Cinza Urbano','Antracite','Preto Soft',
+    'Azul Ártico','Verde Sage','Terracota Duratex',
+    'Carvalho Naturale','Carvalho Chicago','Carvalho Montana','Carvalho Veneza',
+    'Nogal Memphis','Freijó Gold','Tauari','Cerejeira','Castanho','Sucupira',
+    'Ipê','Cumaru','Jatobá','Peroba','Angelim'
+  ],
+  'Guararapes': [
+    'Branco Supremo','Branco Rústico','Gelo','Marfim','Palha','Baunilha',
+    'Cinza Aço','Cinza Mineral','Chumbo','Preto Onix',
+    'Azul Petróleo','Verde Floresta','Rosê Gold',
+    'Carvalho Bourbon','Carvalho Terrara','Carvalho Rústico','Nogueira',
+    'Amendoim','Mogno','Cedro','Pinho','Eucalipto','Pé de Galinha',
+    'Malbec','Chocolate','Capucho'
+  ],
+  'Arauco': [
+    'Branco Ártico','Branco Acetinado','Natural','Cru','Khaki','Castanha',
+    'Cinza Berlin','Cinza London','Grafite Steel','Preto Eclipse',
+    'Verde Alga','Azul Denim',
+    'Carvalho Munique','Carvalho Oslo','Carvalho Santiago','Carvalho Berlim',
+    'Alamo','Pino','Roble','Haya','Cerezo','Nogal Europeu',
+    'Premium Branco','Premium Grafite'
+  ],
+  'Placas Brasil': [
+    'Branco Luminoso','Branco Classic','Creme Suave','Bege Claro',
+    'Cinza Concreto','Cinza Médio','Preto Absoluto',
+    'Carvalho Nobre','Carvalho Rio','Carvalho Serra',
+    'Freijó Nacional','Teca Nacional','Nogueira Nacional',
+    'Amendoim Nacional','Cedro Nacional','Sucupira Nacional',
+    'Terracota PB','Musgo PB'
+  ],
+  'Fibraplac': [
+    'Branco Neve Fibraplac','Branco Natural Fibraplac','Marfim Fibraplac',
+    'Cinza Prata','Cinza Escuro','Preto Fosco Fibraplac',
+    'Verde Eucalipto','Azul Safira',
+    'Carvalho Clássico','Carvalho Moderno','Carvalho Rústico Fibra',
+    'Pinus','Pinheiro','Angelim Fibraplac','Freijó Fibraplac',
+    'Cumaru Fibraplac','Tauari Fibraplac','Cedro Fibraplac',
+    'Rosê Fibraplac','Champagne'
+  ]
+};
+
+function rCores(){
+  const marca=$('nmarca').value;
+  const sel=$('ncor');
+  if(!marca){sel.innerHTML='<option value="">— Selecione a marca primeiro —</option>';return;}
+  const cores=MARCAS_CORES[marca]||[];
+  sel.innerHTML='<option value="">Selecione a cor...</option>'+cores.map(c=>'<option>'+c+'</option>').join('');
+  sel.onchange=onCorChange;
+}
+
+function onCorChange(){
+  const cor=$('ncor').options[$('ncor').selectedIndex]?.text||'';
+  const temVeio=isMadeirada(cor);
+  // Mostra/esconde coluna de veio em todas as linhas
+  document.querySelectorAll('[id$="-veio-cell"]').forEach(td=>{
+    td.style.display=temVeio?'':'none';
+  });
+  const th=$('th-veio');
+  if(th)th.style.display=temVeio?'':'none';
+  // Redesenha miniaturas com a cor
+  pecas.forEach(p=>{
+    drawVeioMini(p.id+'-cv-c','C',cor);
+    drawVeioMini(p.id+'-cv-l','L',cor);
+  });
+}
+
+function drawVeioMini(canvasId, dir, cor){
+  const cv=document.getElementById(canvasId);
+  if(!cv)return;
+  const ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height;
+  // Fundo madeira
+  ctx.fillStyle='#C8A882';
+  ctx.fillRect(0,0,W,H);
+  // Linhas de veio
+  ctx.strokeStyle='rgba(100,60,20,.35)';
+  ctx.lineWidth=1;
+  if(dir==='C'){
+    // Veio vertical (no comprimento)
+    for(let x=4;x<W;x+=6){
+      ctx.beginPath();
+      ctx.moveTo(x,0);
+      ctx.bezierCurveTo(x+2,H/3,x-2,H*2/3,x+1,H);
+      ctx.stroke();
+    }
+    // Seta indicadora
+    ctx.strokeStyle='rgba(0,0,0,.6)';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(W/2,3);ctx.lineTo(W/2,H-3);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(W/2-3,7);ctx.lineTo(W/2,3);ctx.lineTo(W/2+3,7);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(W/2-3,H-7);ctx.lineTo(W/2,H-3);ctx.lineTo(W/2+3,H-7);ctx.stroke();
+  } else {
+    // Veio horizontal (na largura)
+    for(let y=4;y<H;y+=6){
+      ctx.beginPath();
+      ctx.moveTo(0,y);
+      ctx.bezierCurveTo(W/3,y+2,W*2/3,y-2,W,y+1);
+      ctx.stroke();
+    }
+    // Seta indicadora
+    ctx.strokeStyle='rgba(0,0,0,.6)';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(3,H/2);ctx.lineTo(W-3,H/2);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(7,H/2-3);ctx.lineTo(3,H/2);ctx.lineTo(7,H/2+3);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(W-7,H/2-3);ctx.lineTo(W-3,H/2);ctx.lineTo(W-7,H/2+3);ctx.stroke();
+  }
+  // Borda
+  ctx.strokeStyle='rgba(0,0,0,.2)';ctx.lineWidth=1;
+  ctx.strokeRect(0,0,W,H);
+}
+
+function setVeio(id,dir){
+  const p=pecas.find(x=>x.id===id);if(!p)return;
+  p.veio=dir;
+  // Atualiza visual selecionado
+  const vc=document.getElementById(id+'-vc');
+  const vl=document.getElementById(id+'-vl');
+  if(vc)vc.classList.toggle('sel',dir==='C');
+  if(vl)vl.classList.toggle('sel',dir==='L');
+}
+
+
+// Cores que possuem veio — detecção automática
+var CORES_MADEIRADAS = [
+  'carvalho','freijó','teca','nogal','nogueira','imbuia','wengue','amendoa','amendoim',
+  'mogno','cedro','pinho','pinus','angelim','cumaru','jatobá','peroba','sucupira',
+  'ipê','tauari','eucalipto','pé de galinha','cerejeira','castanho','alamo','roble',
+  'haya','cerezo','pino','freijó','freijo','teak','oak','walnut','cherry','maple',
+  'aquapanel','painel','madeira','wood','timber','rústico','rustico','natural',
+  'malbec','capucho','capuccino'
+];
+
+function isMadeirada(cor) {
+  if(!cor) return false;
+  var c = cor.toLowerCase();
+  return CORES_MADEIRADAS.some(function(m){ return c.indexOf(m) >= 0; });
 }
 
 // ══ INIT ══
