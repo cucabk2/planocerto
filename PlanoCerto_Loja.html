@@ -225,18 +225,40 @@ canvas{display:block;}
     <div class="ativ-logo">Plano<span>Certo</span></div>
     <div class="ativ-sub">Sistema de Corte — Loja / Central</div>
 
+    <!-- STEP 1: Token -->
     <div id="ativ-step1">
       <label class="ativ-label">Token de ativação</label>
-      <input class="ativ-input" id="tok-inp" placeholder="PC-XXXX-XXXXXX-XXXX" style="font-family:monospace;font-size:15px;letter-spacing:.05em;">
-      <button class="ativ-btn" id="btn-tok" onclick="validarToken()">Validar token</button>
+      <input class="ativ-input" id="tok-inp" placeholder="PC-XXXX-XXXXXX-XXXX" style="font-family:monospace;font-size:15px;letter-spacing:.05em;" onkeydown="if(event.key==='Enter')validarToken()">
+      <button class="ativ-btn" id="btn-tok" onclick="validarToken()">Validar token →</button>
       <div class="ativ-err" id="tok-err"></div>
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1);text-align:center;">
+        <div style="font-size:11px;color:rgba(255,255,255,.3);margin-bottom:8px;">Já tem conta cadastrada?</div>
+        <button class="ativ-link" onclick="showLoginDireto()" style="color:#58A6FF;font-size:12px;">Entrar com e-mail e senha →</button>
+      </div>
     </div>
 
+    <!-- STEP 2: Escolha após token válido -->
     <div id="ativ-step2" style="display:none;">
       <div style="background:rgba(35,134,54,.15);border:1px solid rgba(35,134,54,.4);border-radius:6px;padding:10px 12px;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
-        <span style="font-size:16px;">✓</span>
+        <span style="font-size:16px;color:#3FB950;">✓</span>
         <div><div style="color:#3FB950;font-weight:600;font-size:13px;" id="tok-ok-nm">Token válido!</div><div style="color:rgba(63,185,80,.6);font-size:11px;" id="tok-ok-ci"></div></div>
       </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;">
+        <button onclick="showCad()" style="padding:14px;background:rgba(88,166,255,.15);border:1px solid rgba(88,166,255,.4);border-radius:8px;color:#58A6FF;font-size:13px;font-weight:600;cursor:pointer;text-align:center;">
+          <div style="font-size:22px;margin-bottom:4px;">🏪</div>
+          Primeira vez<br><span style="font-size:11px;opacity:.7;">Criar conta da loja</span>
+        </button>
+        <button onclick="showLogin()" style="padding:14px;background:rgba(46,164,79,.15);border:1px solid rgba(46,164,79,.4);border-radius:8px;color:#3FB950;font-size:13px;font-weight:600;cursor:pointer;text-align:center;">
+          <div style="font-size:22px;margin-bottom:4px;">🔑</div>
+          Já tenho conta<br><span style="font-size:11px;opacity:.7;">Entrar com senha</span>
+        </button>
+      </div>
+      <button class="ativ-link" onclick="voltarToken()" style="margin-top:10px;">← Usar outro token</button>
+    </div>
+
+    <!-- STEP 3: Cadastro -->
+    <div id="ativ-step3" style="display:none;">
+      <div style="color:#3FB950;font-size:12px;font-weight:600;margin-bottom:14px;">🏪 Criar conta da loja</div>
       <label class="ativ-label">Nome da loja</label>
       <input class="ativ-input" id="cn" placeholder="Madeireira Central...">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
@@ -250,20 +272,33 @@ canvas{display:block;}
       <button class="ativ-btn" id="btn-cad" onclick="doCad()">Ativar loja</button>
       <div class="ativ-err" id="cad-err"></div>
       <button class="ativ-link" onclick="showLogin()">Já tenho conta → Entrar</button>
+      <button class="ativ-link" onclick="voltarToken()">← Voltar</button>
+    </div>
+
+    <!-- STEP 4: Login com senha (após token) -->
+    <div id="ativ-step4" style="display:none;">
+      <div style="color:#3FB950;font-size:12px;font-weight:600;margin-bottom:14px;">🔑 Entrar na conta</div>
+      <div style="background:rgba(35,134,54,.1);border:1px solid rgba(35,134,54,.3);border-radius:6px;padding:8px 12px;margin-bottom:14px;font-size:12px;color:rgba(63,185,80,.8);" id="tok-ok-nm2">Token validado ✓</div>
+      <label class="ativ-label">E-mail</label>
+      <input class="ativ-input" id="le" type="email" placeholder="loja@email.com" onkeydown="if(event.key==='Enter')doLogin()">
+      <label class="ativ-label">Senha</label>
+      <input class="ativ-input" id="ls" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="ativ-btn" id="btn-login" onclick="doLogin()">Entrar →</button>
+      <div class="ativ-err" id="login-err"></div>
+      <button class="ativ-link" onclick="showCad()">← Criar conta nova</button>
       <button class="ativ-link" onclick="voltarToken()">← Usar outro token</button>
     </div>
 
-    <div id="ativ-step3" style="display:none;">
-      <div style="background:rgba(35,134,54,.15);border:1px solid rgba(35,134,54,.4);border-radius:6px;padding:10px 12px;margin-bottom:16px;">
-        <div style="color:#3FB950;font-weight:600;font-size:13px;" id="tok-ok-nm2">Token válido!</div>
-      </div>
+    <!-- STEP 5: Login direto sem token (já tem conta) -->
+    <div id="ativ-step5" style="display:none;">
+      <div style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:14px;">Entre com seu e-mail e senha cadastrados.</div>
       <label class="ativ-label">E-mail</label>
-      <input class="ativ-input" id="le" type="email" placeholder="loja@email.com">
+      <input class="ativ-input" id="le2" type="email" placeholder="loja@email.com" onkeydown="if(event.key==='Enter')doLoginDireto()">
       <label class="ativ-label">Senha</label>
-      <input class="ativ-input" id="ls" type="password" placeholder="••••••••">
-      <button class="ativ-btn" id="btn-login" onclick="doLogin()">Entrar</button>
-      <div class="ativ-err" id="login-err"></div>
-      <button class="ativ-link" onclick="showCad()">← Criar conta nova</button>
+      <input class="ativ-input" id="ls2" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLoginDireto()">
+      <button class="ativ-btn" id="btn-login2" onclick="doLoginDireto()">Entrar →</button>
+      <div class="ativ-err" id="login-err2"></div>
+      <button class="ativ-link" onclick="showStep(1)">← Usar token de ativação</button>
     </div>
   </div>
 </div>
@@ -652,13 +687,19 @@ async function validarToken(){
   if(res.error||!res.data){$('tok-err').textContent='Token não encontrado';return;}
   if(!res.data.ativo){$('tok-err').textContent='Token revogado. Contate o administrador.';return;}
   tokenInfo=res.data;
-  $('tok-ok-nm').textContent='✓ '+res.data.nome;$('tok-ok-ci').textContent=res.data.cidade||'';
-  $('tok-ok-nm2').textContent='✓ '+res.data.nome;
-  $('ativ-step1').style.display='none';$('ativ-step2').style.display='block';
+  $('tok-ok-nm').textContent='✓ '+res.data.nome;
+  if($('tok-ok-ci'))$('tok-ok-ci').textContent=res.data.cidade||'';
+  if($('tok-ok-nm2'))$('tok-ok-nm2').textContent='Token validado: '+res.data.nome+' ✓';
+  showStep(2);
 }
-function voltarToken(){$('ativ-step2').style.display='none';$('ativ-step3').style.display='none';$('ativ-step1').style.display='block';tokenInfo=null;}
-function showLogin(){$('ativ-step2').style.display='none';$('ativ-step3').style.display='block';}
-function showCad(){$('ativ-step3').style.display='none';$('ativ-step2').style.display='block';}
+function showStep(n){
+  [1,2,3,4,5].forEach(function(i){var el=$('ativ-step'+i);if(el)el.style.display='none';});
+  var el=$('ativ-step'+n);if(el)el.style.display='block';
+}
+function voltarToken(){tokenInfo=null;showStep(1);}
+function showLogin(){showStep(4);}
+function showCad(){showStep(3);}
+function showLoginDireto(){showStep(5);}
 
 async function doCad(){
   if(!tokenInfo)return;
@@ -674,6 +715,20 @@ async function doCad(){
   if(ins.error){$('cad-err').textContent=ins.error.message;return;}
   enterApp(ins.data);
 }
+async function doLoginDireto(){
+  var email=$('le2').value.trim(),senha=$('ls2').value;
+  if(!email||!senha){$('login-err2').textContent='Preencha e-mail e senha';return;}
+  setBtn('btn-login2',true,'Entrar');
+  var res=await sb.from('lojas').select('*').eq('email',email).single();
+  if(res.error||!res.data){$('login-err2').textContent='E-mail não encontrado';setBtn('btn-login2',false,'Entrar →');return;}
+  var tok=await sb.from('tokens').select('ativo').eq('id',res.data.token_id).single();
+  if(!tok.data||!tok.data.ativo){$('login-err2').textContent='Licença revogada. Contate o administrador.';setBtn('btn-login2',false,'Entrar →');return;}
+  var h=await hashSenha(senha);
+  if(h!==res.data.senha_hash){$('login-err2').textContent='Senha incorreta';setBtn('btn-login2',false,'Entrar →');return;}
+  setBtn('btn-login2',false,'Entrar →');
+  enterApp(res.data);
+}
+
 async function doLogin(){
   if(!tokenInfo)return;
   var email=$('le').value.trim(),senha=$('ls').value;
@@ -692,6 +747,7 @@ function doLogout(){localStorage.removeItem('pc_loja_sess');U=null;$('app').styl
 function enterApp(loja){
   U=loja;
   localStorage.setItem('pc_loja_sess',JSON.stringify({id:loja.id,email:loja.email,token_id:loja.token_id,token:loja.token}));
+  localStorage.setItem('pc_loja_cache',JSON.stringify(loja));
   $('sc-ativ').style.display='none';$('app').style.display='flex';
   var ini=loja.nome.split(' ').map(function(x){return x[0];}).join('').slice(0,2).toUpperCase();
   $('tb-av').textContent=ini;$('tb-loja-nm').textContent=loja.nome;
@@ -1306,12 +1362,24 @@ function dlBlob(data,name,type){
   if(!sess)return;
   try{
     var s=JSON.parse(sess);
+    // Revalida token no servidor a cada login
     sb.from('tokens').select('ativo').eq('id',s.token_id).single().then(function(res){
-      if(!res.data||!res.data.ativo){localStorage.removeItem('pc_loja_sess');return;}
+      if(!res.data||!res.data.ativo){
+        localStorage.removeItem('pc_loja_sess');
+        if($('tok-err'))$('tok-err').textContent='Sua licença foi revogada. Contate o administrador.';
+        return;
+      }
       sb.from('lojas').select('*').eq('id',s.id).single().then(function(r){
-        if(r.data)enterApp(r.data);
-        else localStorage.removeItem('pc_loja_sess');
+        if(r.data){
+          enterApp(r.data);
+        } else {
+          localStorage.removeItem('pc_loja_sess');
+        }
       });
+    }).catch(function(){
+      // Sem internet — tenta entrar offline com dados salvos
+      var cached=localStorage.getItem('pc_loja_cache');
+      if(cached){try{enterApp(JSON.parse(cached));}catch(e){}}
     });
   }catch(e){localStorage.removeItem('pc_loja_sess');}
 })();
