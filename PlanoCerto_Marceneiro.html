@@ -740,8 +740,8 @@ function addRow(v){
   const tr=document.createElement('tr');tr.id='row-'+id;
   tr.innerHTML=`<td class="cnum">${idx}</td>
     <td><input class="ci" id="${id}-n" value="${n}" placeholder="Lateral, Porta..." onchange="sP('${id}')"></td>
-    <td><input class="ci" id="${id}-c" type="number" value="${C}" placeholder="600" inputmode="numeric" style="max-width:80px" onchange="sP('${id}')"></td>
-    <td><input class="ci" id="${id}-l" type="number" value="${L}" placeholder="400" inputmode="numeric" style="max-width:80px" onchange="sP('${id}')"></td>
+    <td><input class="ci" id="${id}-c" type="number" value="${C}" placeholder="600" inputmode="numeric" style="max-width:80px" oninput="sP('${id}')"></td>
+    <td><input class="ci" id="${id}-l" type="number" value="${L}" placeholder="400" inputmode="numeric" style="max-width:80px" oninput="sP('${id}')"></td>
     <td><input class="ci" id="${id}-q" type="number" value="${q}" placeholder="1" inputmode="numeric" style="max-width:50px" onchange="sP('${id}')"></td>
     <td>
       <select class="ci" id="${id}-esp" onchange="sP('${id}')" style="font-size:12px;padding:8px 4px;">
@@ -794,11 +794,14 @@ function sP(id){
   const p=pecas.find(x=>x.id===id);if(!p)return;
   const n=$(id+'-n'),c=$(id+'-c'),l=$(id+'-l'),q=$(id+'-q'),e=$(id+'-esp');
   if(n)p.nome=n.value.trim();if(c)p.c=parseFloat(c.value)||0;if(l)p.l=parseFloat(l.value)||0;if(q)p.q=parseInt(q.value)||1;if(e)p.esp=parseInt(e.value)||15;
-  // Redesenha veio com novas medidas
+  // Redesenha veio em tempo real com novas medidas
   const corAtual=$('ncor')?($('ncor').options[$('ncor').selectedIndex]?.text||''):'';
   if(isMadeirada(corAtual)){
     const pp=pecas.find(x=>x.id===id);
-    if(pp){drawVeioMini(id+'-cv-c','C',pp.c,pp.l);drawVeioMini(id+'-cv-l','L',pp.c,pp.l);}
+    if(pp&&pp.c>0&&pp.l>0){
+      drawVeioMini(id+'-cv-c','C',pp.c,pp.l);
+      drawVeioMini(id+'-cv-l','L',pp.c,pp.l);
+    }
   }
 }
 function tB(id,s,btn){const p=pecas.find(x=>x.id===id);if(!p)return;p.borda[s]=!p.borda[s];btn.classList.toggle('on',p.borda[s]);}
@@ -1093,66 +1096,84 @@ function drawVeioMini(canvasId, dir, compC, largL){
   const cv=document.getElementById(canvasId);
   if(!cv)return;
   const ctx=cv.getContext('2d');
-  // Dimensiona canvas proporcional às medidas da peça
-  const C=compC||100, L=largL||100;
-  const MAX=64;
+  const C=parseFloat(compC)||100, L=parseFloat(largL)||100;
+  const MAX=72, MIN=28;
+
+  // A miniatura mostra a peça REAL com proporção correta
+  // dir='C': veio corre no eixo do COMPRIMENTO (C)
+  //   → as linhas de madeira vão de ponta a ponta no sentido de C
+  // dir='L': veio corre no eixo da LARGURA (L)
+  //   → as linhas de madeira vão de ponta a ponta no sentido de L
+
+  // Calcula dimensões proporcionais da miniatura
   let W,H;
   if(dir==='C'){
-    // Veio no comprimento: peça retrata C na vertical
-    const ratio=Math.min(1,C/L);
-    W=Math.max(32,Math.round(MAX*Math.min(1,L/C)));
-    H=MAX;
+    // Peça mostrada com C na vertical (↕)
+    // C é altura, L é largura
+    if(C>=L){W=Math.round(MAX*(L/C));H=MAX;}
+    else{W=MIN+Math.round((MAX-MIN)*(L/C));H=Math.round(W*(C/L));}
+    W=Math.max(MIN,Math.min(MAX,W));
+    H=Math.max(MIN,Math.min(MAX,H));
   } else {
-    // Veio na largura: peça retrata L na horizontal
-    W=MAX;
-    H=Math.max(32,Math.round(MAX*Math.min(1,C/L)));
+    // Peça mostrada com L na horizontal (↔)
+    // L é largura, C é altura
+    if(L>=C){H=Math.round(MAX*(C/L));W=MAX;}
+    else{H=MIN+Math.round((MAX-MIN)*(C/L));W=Math.round(H*(L/C));}
+    W=Math.max(MIN,Math.min(MAX,W));
+    H=Math.max(MIN,Math.min(MAX,H));
   }
   cv.width=W; cv.height=H;
-  // Fundo madeira
-  const grad=ctx.createLinearGradient(0,0,W,H);
-  grad.addColorStop(0,'#D4A96A');grad.addColorStop(.5,'#C8975A');grad.addColorStop(1,'#B8864A');
-  ctx.fillStyle=grad;
-  ctx.fillRect(0,0,W,H);
-  // Linhas de veio
-  ctx.strokeStyle='rgba(80,40,10,.3)';
-  ctx.lineWidth=0.8;
+
+  // Fundo madeira com gradiente
+  const grad=ctx.createLinearGradient(0,0,dir==='C'?0:W,dir==='C'?H:0);
+  grad.addColorStop(0,'#D4AA70');grad.addColorStop(.4,'#C8955A');grad.addColorStop(.7,'#D4AA70');grad.addColorStop(1,'#B8864A');
+  ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
+
+  // Linhas de veio — sempre correm no sentido do eixo selecionado
+  ctx.strokeStyle='rgba(70,35,8,.28)';ctx.lineWidth=0.8;ctx.setLineDash([]);
   if(dir==='C'){
-    for(let x=3;x<W;x+=5){
+    // Veio ↕ — linhas verticais (correm de cima a baixo, no eixo C)
+    for(let x=3;x<W;x+=4){
       ctx.beginPath();ctx.moveTo(x,0);
       ctx.bezierCurveTo(x+1.5,H/3,x-1.5,H*2/3,x+1,H);ctx.stroke();
     }
   } else {
-    for(let y=3;y<H;y+=5){
+    // Veio ↔ — linhas horizontais (correm da esq à dir, no eixo L)
+    for(let y=3;y<H;y+=4){
       ctx.beginPath();ctx.moveTo(0,y);
       ctx.bezierCurveTo(W/3,y+1.5,W*2/3,y-1.5,W,y+1);ctx.stroke();
     }
   }
-  // Seta de direção do veio
-  ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=1.5;
-  if(dir==='C'){
-    const mx=W/2;
-    ctx.beginPath();ctx.moveTo(mx,4);ctx.lineTo(mx,H-4);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(mx-4,9);ctx.lineTo(mx,4);ctx.lineTo(mx+4,9);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(mx-4,H-9);ctx.lineTo(mx,H-4);ctx.lineTo(mx+4,H-9);ctx.stroke();
-  } else {
-    const my=H/2;
-    ctx.beginPath();ctx.moveTo(4,my);ctx.lineTo(W-4,my);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(9,my-4);ctx.lineTo(4,my);ctx.lineTo(9,my+4);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(W-9,my-4);ctx.lineTo(W-4,my);ctx.lineTo(W-9,my+4);ctx.stroke();
+
+  // Seta dupla mostrando direção do veio
+  ctx.strokeStyle='rgba(255,255,255,.92)';ctx.lineWidth=1.5;ctx.setLineDash([]);
+  if(dir==='C'&&H>22){
+    const mx=W/2,pad=5;
+    ctx.beginPath();ctx.moveTo(mx,pad);ctx.lineTo(mx,H-pad);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(mx-3.5,pad+5);ctx.lineTo(mx,pad);ctx.lineTo(mx+3.5,pad+5);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(mx-3.5,H-pad-5);ctx.lineTo(mx,H-pad);ctx.lineTo(mx+3.5,H-pad-5);ctx.stroke();
+  } else if(dir==='L'&&W>22){
+    const my=H/2,pad=5;
+    ctx.beginPath();ctx.moveTo(pad,my);ctx.lineTo(W-pad,my);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(pad+5,my-3.5);ctx.lineTo(pad,my);ctx.lineTo(pad+5,my+3.5);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(W-pad-5,my-3.5);ctx.lineTo(W-pad,my);ctx.lineTo(W-pad-5,my+3.5);ctx.stroke();
   }
-  // Medidas na miniatura
-  ctx.fillStyle='rgba(255,255,255,.95)';
-  ctx.font='bold 8px Inter,sans-serif';
-  ctx.textAlign='center';ctx.textBaseline='middle';
-  if(dir==='C'&&C&&L){
-    // Mostra C na lateral vertical, L na horizontal
-    ctx.save();ctx.translate(W/2,H/2);ctx.rotate(-Math.PI/2);
-    ctx.fillText(C+'mm',0,0);ctx.restore();
-  } else if(dir==='L'&&C&&L){
-    ctx.fillText(L+'mm',W/2,H/2);
+
+  // Medida principal dentro da miniatura
+  if(C&&L){
+    ctx.fillStyle='rgba(255,255,255,.92)';ctx.font='bold 7px Inter,sans-serif';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    if(dir==='C'){
+      // Mostra C rotacionado (vertical)
+      if(H>20){ctx.save();ctx.translate(W/2,H/2);ctx.rotate(-Math.PI/2);ctx.fillText(C+'mm',0,0);ctx.restore();}
+    } else {
+      // Mostra L horizontal
+      if(W>20){ctx.fillText(L+'mm',W/2,H/2);}
+    }
   }
-  // Borda
-  ctx.strokeStyle='rgba(0,0,0,.25)';ctx.lineWidth=1;ctx.strokeRect(0,0,W,H);
+
+  // Borda da miniatura
+  ctx.strokeStyle='rgba(0,0,0,.2)';ctx.lineWidth=1;ctx.strokeRect(.5,.5,W-1,H-1);
 }
 
 function setVeio(id,dir){
