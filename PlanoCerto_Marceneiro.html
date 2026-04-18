@@ -400,6 +400,7 @@ canvas{width:100%;height:auto;display:block;border:var(--bd);border-radius:4px;}
           </div>
           <div class="flex g8 fw">
             <button class="btn bs bsm" onclick="nav('novo')">← Editar peças</button>
+            <button class="btn bs bsm" onclick="abrirRelatorio()" style="border-color:var(--gd);color:var(--gd);">🖨 Relatório</button>
             <button class="btn bp" onclick="abrirEnvio()">
               <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
               Enviar para a loja
@@ -1222,6 +1223,253 @@ function isMadeirada(cor) {
   return CORES_MADEIRADAS.some(function(m){ return c.indexOf(m) >= 0; });
 }
 
+
+function abrirRelatorio(){
+  if(!chapas||!chapas.length){toast('Calcule o plano primeiro');return;}
+  const html=gerarRelatorioHTML();
+  document.getElementById('rel-content').innerHTML=html;
+  // Desenha os canvas após renderizar o HTML
+  setTimeout(()=>{
+    chapas.forEach((ch,ci)=>{
+      const cid='rel-cv-'+ci;
+      drawRelCanvas(cid,ch);
+    });
+  },100);
+  document.getElementById('ov-rel').classList.add('open');
+}
+
+function gerarRelatorioHTML(){
+  const corAtual=$('nmarca')&&$('ncor')?
+    (($('nmarca').value?$('nmarca').value+' — ':'')+($('ncor').options[$('ncor').selectedIndex]?.text||'')):'—';
+  const cs=$('nch')?$('nch').value:'2750x1840';
+  const [CW,CH]=cs.split('x').map(Number);
+  const allPecas=[];chapas.forEach(ch=>ch.pc.forEach(p=>allPecas.push(p)));
+  const uA=allPecas.reduce((a,p)=>a+p.c*p.l,0);
+  const tA=chapas.length*CW*CH;
+  const aprov=tA?Math.round(uA/tA*100):0;
+  const perda=100-aprov;
+  const data=new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+
+  let html='';
+
+  chapas.forEach((ch,ci)=>{
+    const chapNum=ci+1;
+    const chapPecas=ch.pc;
+    const chapUA=chapPecas.reduce((a,p)=>a+p.pw*p.ph,0);
+    const chapAprov=Math.round(chapUA/(CW*CH)*100);
+    const espLabel=ch.esp?'MDF '+ch.esp+'mm':'MDF';
+
+    html+=`<div class="rel-page">
+      <div class="rel-header">
+        <div>
+          <div class="rel-logo">Plano<span>Certo</span></div>
+          <div style="font-size:10px;color:#888;margin-top:2px;">cutting optimization software</div>
+        </div>
+        <div class="rel-info">
+          <b>Plano de corte ${chapNum}/${chapas.length}</b> — Quantidade: 1<br>
+          Material: <b>${espLabel} — ${corAtual||'—'}</b><br>
+          Chapa: <b>${CW} mm × ${CH} mm</b><br>
+          Corte Inicial: Guilhotinado
+        </div>
+        <div class="rel-info-right">
+          Qtd. de peças: <b>${chapPecas.length}</b><br>
+          Aproveitamento: <b>${chapAprov}%</b><br>
+          Perda: <b>${100-chapAprov}%</b><br>
+          ${data}<br>
+          <b>Page ${chapNum} of ${chapas.length}</b>
+        </div>
+      </div>
+
+      <!-- Canvas do plano de corte desta chapa -->
+      <div style="text-align:center;">
+        <div class="rel-canvas-wrap">
+          <canvas id="rel-cv-${ci}" width="680" height="420" style="display:block;"></canvas>
+        </div>
+      </div>
+
+      <!-- Lista de peças desta chapa -->
+      <div class="rel-sub">Peças — Chapa ${chapNum}</div>
+      <table class="rel-pecas-table">
+        <thead>
+          <tr>
+            <th>N</th><th>Projeto</th><th>Cód.</th><th>Descrição</th><th>Obs.</th><th>Leg.</th><th>Largura</th><th>Altura</th><th>Qt</th><th>Borda</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${chapPecas.map((p,i)=>{
+            const b=p.borda||{};
+            const lados=[b.t?'C':'',b.b?'B':'',b.l?'E':'',b.r?'D':''].filter(Boolean).join('+');
+            return `<tr>
+              <td>${i+1}</td>
+              <td>${pNome||'—'}</td>
+              <td>${i+1}</td>
+              <td>${p.nome||'—'}</td>
+              <td></td>
+              <td style="font-weight:700;">${String.fromCharCode(65+i)}</td>
+              <td>${p.c}</td>
+              <td>${p.l}</td>
+              <td>1</td>
+              <td>${lados||'—'}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+      ${ci<chapas.length-1?'<div class="rel-div"></div>':''}
+    </div>`;
+  });
+
+  // Página de resumo final
+  html+=`<div class="rel-page">
+    <div class="rel-header">
+      <div><div class="rel-logo">Plano<span>Certo</span></div></div>
+      <div class="rel-info"><b>Resumo geral — ${pNome||'Serviço'}</b><br>${data}</div>
+    </div>
+    <div class="rel-sub">Resumo do plano</div>
+    <table class="rel-pecas-table" style="max-width:500px;">
+      <tr><td><b>Total de chapas</b></td><td>${chapas.length}</td></tr>
+      <tr><td><b>Total de peças</b></td><td>${allPecas.length}</td></tr>
+      <tr><td><b>Aproveitamento médio</b></td><td>${aprov}%</td></tr>
+      <tr><td><b>Perda média</b></td><td>${perda}%</td></tr>
+      <tr><td><b>Material</b></td><td>${corAtual||'—'}</td></tr>
+      <tr><td><b>Tamanho da chapa</b></td><td>${CW} × ${CH} mm</td></tr>
+    </table>
+    <div class="rel-sub" style="margin-top:20px;">Todas as peças</div>
+    <table class="rel-pecas-table">
+      <thead><tr><th>N</th><th>Descrição</th><th>Esp.</th><th>Largura (C)</th><th>Altura (L)</th><th>Qtd</th><th>Borda</th><th>Chapa</th></tr></thead>
+      <tbody>
+        ${chapas.map((ch,ci)=>ch.pc.map((p,pi)=>{
+          const b=p.borda||{};
+          const lados=[b.t?'C':'',b.b?'B':'',b.l?'E':'',b.r?'D':''].filter(Boolean).join('+');
+          return `<tr>
+            <td>${pi+1}</td><td>${p.nome||'—'}</td><td>${p._esp||p.esp||'—'}mm</td>
+            <td>${p.c}</td><td>${p.l}</td><td>1</td><td>${lados||'—'}</td><td>${ci+1}</td>
+          </tr>`;
+        }).join('')).join('')}
+      </tbody>
+    </table>
+    <div style="margin-top:20px;font-size:10px;color:#aaa;text-align:center;">
+      Gerado por PlanoCerto · planocerto.com.br
+    </div>
+  </div>`;
+
+  return html;
+}
+
+function drawRelCanvas(cid, ch){
+  const cv=document.getElementById(cid);
+  if(!cv)return;
+  const ctx=cv.getContext('2d');
+  const cs=$('nch')?$('nch').value:'2750x1840';
+  const [CW,CH]=cs.split('x').map(Number);
+  const PAD_L=40, PAD_T=20, PAD_R=20, PAD_B=30;
+  const W=cv.width-PAD_L-PAD_R;
+  const H=cv.height-PAD_T-PAD_B;
+  const scale=Math.min(W/CW,H/CH);
+  const dW=Math.round(CW*scale), dH=Math.round(CH*scale);
+  const OX=PAD_L, OY=PAD_T;
+
+  cv.width=dW+PAD_L+PAD_R+20;
+  cv.height=dH+PAD_T+PAD_B+20;
+
+  // Fundo branco
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
+
+  // Chapa fundo cinza claro
+  ctx.fillStyle='#e8e8e8';ctx.fillRect(OX,OY,dW,dH);
+  ctx.strokeStyle='#333';ctx.lineWidth=1.5;ctx.strokeRect(OX,OY,dW,dH);
+
+  // Cores das peças
+  const CORES_REL=['#AED6F1','#A9DFBF','#F9E79F','#F1948A','#D2B4DE','#A3E4D7','#FAD7A0','#85C1E9'];
+  const corAtual=$('ncor')?($('ncor').options[$('ncor').selectedIndex]?.text||''):'';
+  const temVeio=typeof isMadeirada==='function'&&isMadeirada(corAtual);
+
+  // Retalhos primeiro (área livre hachurada em amarelo)
+  // Calcula espaços livres aproximados
+  const usedRects=ch.pc.map(p=>({x:OX+p.px*scale,y:OY+p.py*scale,w:p.pw*scale,h:p.ph*scale}));
+
+  // Desenha peças
+  ch.pc.forEach((p,seq)=>{
+    const x=OX+p.px*scale, y=OY+p.py*scale;
+    const w=p.pw*scale, h=p.ph*scale;
+    const cor=CORES_REL[seq%CORES_REL.length];
+
+    // Fundo da peça
+    ctx.fillStyle=cor;ctx.fillRect(x,y,w,h);
+
+    // Veio (linhas de textura)
+    if(temVeio&&w>8&&h>8){
+      const vd=p.veio||'C';
+      ctx.save();ctx.beginPath();ctx.rect(x,y,w,h);ctx.clip();
+      ctx.strokeStyle='rgba(0,0,0,.12)';ctx.lineWidth=0.7;
+      if(vd==='C'){for(let lx=x+3;lx<x+w;lx+=5){ctx.beginPath();ctx.moveTo(lx,y);ctx.lineTo(lx+1,y+h);ctx.stroke();}}
+      else{for(let ly=y+3;ly<y+h;ly+=5){ctx.beginPath();ctx.moveTo(x,ly);ctx.lineTo(x+w,ly+1);ctx.stroke();}}
+      ctx.restore();
+    }
+
+    // Fita de borda (faixa amarela-ouro)
+    const bd=p.borda||{};const FW=Math.max(2,Math.min(5,w*0.06));
+    ctx.fillStyle='#F4D03F';
+    if(bd.t)ctx.fillRect(x,y,w,FW);
+    if(bd.b)ctx.fillRect(x,y+h-FW,w,FW);
+    if(bd.l)ctx.fillRect(x,y,FW,h);
+    if(bd.r)ctx.fillRect(x+w-FW,y,FW,h);
+
+    // Borda da peça
+    ctx.strokeStyle='#333';ctx.lineWidth=0.8;ctx.strokeRect(x,y,w,h);
+
+    // Número da peça
+    ctx.fillStyle='rgba(0,0,0,0.8)';
+    ctx.font='bold '+Math.max(8,Math.min(13,w/5))+'px Arial,sans-serif';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(seq+1,x+w/2,y+h/2);
+
+    // Cota de largura (abaixo da peça)
+    ctx.fillStyle='#222';ctx.font='9px Arial,sans-serif';ctx.textAlign='center';
+    ctx.fillText(p.c,x+w/2,y+h+10);
+    // Linha de cota
+    ctx.strokeStyle='#555';ctx.lineWidth=0.5;
+    ctx.beginPath();ctx.moveTo(x,y+h+6);ctx.lineTo(x+w,y+h+6);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(x,y+h+3);ctx.lineTo(x,y+h+9);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(x+w,y+h+3);ctx.lineTo(x+w,y+h+9);ctx.stroke();
+
+    // Cota de altura (lateral direita)
+    ctx.save();ctx.translate(x+w+12,y+h/2);ctx.rotate(-Math.PI/2);
+    ctx.fillStyle='#222';ctx.font='9px Arial,sans-serif';ctx.textAlign='center';
+    ctx.fillText(p.l,0,0);ctx.restore();
+    ctx.strokeStyle='#555';ctx.lineWidth=0.5;
+    ctx.beginPath();ctx.moveTo(x+w+6,y);ctx.lineTo(x+w+6,y+h);ctx.stroke();
+  });
+
+  // Retalhos — hachura amarela nas áreas não usadas (simplificado)
+  // Marca as bordas da chapa com hachura se sobrarem
+  const usedRight=Math.max(...ch.pc.map(p=>(p.px+p.pw)*scale))||dW;
+  const usedBottom=Math.max(...ch.pc.map(p=>(p.py+p.ph)*scale))||dH;
+  if(dW-usedRight>2){
+    ctx.save();
+    ctx.fillStyle='rgba(255,255,0,0.4)';
+    ctx.fillRect(OX+usedRight,OY,dW-usedRight,dH);
+    // Hachura
+    ctx.strokeStyle='#DAA520';ctx.lineWidth=0.6;
+    for(let d=0;d<dH+dW;d+=8){
+      ctx.beginPath();
+      ctx.moveTo(OX+usedRight+Math.max(0,d-dH),OY+Math.min(dH,d));
+      ctx.lineTo(OX+usedRight+Math.min(dW-usedRight,d),OY+Math.max(0,d-(dW-usedRight)));
+      ctx.stroke();
+    }
+    ctx.restore();
+    ctx.fillStyle='#333';ctx.font='bold 9px Arial';ctx.textAlign='center';
+    ctx.fillText('RET',OX+usedRight+(dW-usedRight)/2,OY+12);
+  }
+
+  // Cota total da chapa
+  ctx.fillStyle='#111';ctx.font='bold 10px Arial';
+  ctx.textAlign='center';ctx.textBaseline='top';
+  ctx.fillText(CW+' mm',OX+dW/2,OY+dH+18);
+  ctx.save();ctx.translate(OX-22,OY+dH/2);ctx.rotate(-Math.PI/2);
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(CH+' mm',0,0);ctx.restore();
+}
+
 // ══ INIT ══
 (async()=>{
   const sess=await dbGet('pc_marc_sess');
@@ -1235,5 +1483,45 @@ setInterval(async()=>{
   $('dot-sb').style.display=nd?'inline-block':'none';
 },20000);
 </script>
+
+<!-- MODAL RELATÓRIO -->
+<div class="ov" id="ov-rel" style="align-items:flex-start;padding:0;">
+  <div style="background:#fff;width:100%;min-height:100vh;overflow-y:auto;" id="rel-wrap">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:#1a1a2e;color:#fff;position:sticky;top:0;z-index:10;">
+      <div style="font-size:15px;font-weight:600;">Relatório de corte — PlanoCerto</div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="window.print()" style="padding:7px 16px;background:#27AE60;color:#fff;border:none;border-radius:5px;font-size:13px;font-weight:600;cursor:pointer;">🖨 Imprimir</button>
+        <button onclick="closeOv('ov-rel')" style="padding:7px 14px;background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:5px;font-size:13px;cursor:pointer;">✕ Fechar</button>
+      </div>
+    </div>
+    <div id="rel-content" style="padding:20px;max-width:900px;margin:0 auto;"></div>
+  </div>
+</div>
+
+<style>
+@media print {
+  body > *:not(#ov-rel) { display: none !important; }
+  #ov-rel { position: static !important; background: white !important; }
+  #ov-rel > div { min-height: auto !important; }
+  #ov-rel > div > div:first-child { display: none !important; }
+  #rel-content { padding: 10px !important; }
+  .rel-page { page-break-after: always; }
+  .rel-page:last-child { page-break-after: auto; }
+}
+.rel-page { margin-bottom: 40px; }
+.rel-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1.5px solid #333; }
+.rel-logo { font-size: 22px; font-weight: 700; color: #1a1a2e; letter-spacing: -1px; }
+.rel-logo span { font-weight: 300; color: #555; }
+.rel-info { font-size: 11.5px; color: #333; line-height: 1.7; }
+.rel-info-right { font-size: 11.5px; color: #333; line-height: 1.7; text-align: right; }
+.rel-canvas-wrap { border: 1.5px solid #333; display: inline-block; margin: 8px 0; }
+.rel-pecas-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 12px; }
+.rel-pecas-table th { background: #f0f0f0; border: 1px solid #999; padding: 5px 8px; font-weight: 700; text-align: left; }
+.rel-pecas-table td { border: 1px solid #ccc; padding: 5px 8px; }
+.rel-pecas-table tr:nth-child(even) td { background: #fafafa; }
+.rel-sub { font-size: 11px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: .05em; margin: 14px 0 6px; }
+.rel-div { border-top: 1px solid #ddd; margin: 12px 0; }
+</style>
+
 </body>
 </html>
