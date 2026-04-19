@@ -9,8 +9,8 @@
 <style>
 /* ═══ RESET + BASE ═══ */
 *{box-sizing:border-box;margin:0;padding:0;}
-html{height:100%;overflow:hidden;}
-body{height:100%;overflow:hidden;font-family:'Inter',sans-serif;font-size:13px;color:#212121;background:#F5F5F5;}
+html,body{height:100%;width:100%;margin:0;padding:0;overflow:hidden;}
+body{font-family:'Inter',sans-serif;font-size:13px;color:#212121;background:#F5F5F5;display:flex;flex-direction:column;}
 button,input,select,textarea{font-family:'Inter',sans-serif;font-size:13px;}
 button{cursor:pointer;}input,select,textarea{outline:none;}
 
@@ -27,7 +27,8 @@ button{cursor:pointer;}input,select,textarea{outline:none;}
 
 /* ═══ TELA DE LOGIN ═══ */
 #sc-login{
-  position:fixed;inset:0;background:#0D1117;
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:#0D1117;
   display:flex;align-items:center;justify-content:center;z-index:999;
 }
 .login-box{
@@ -53,7 +54,9 @@ button{cursor:pointer;}input,select,textarea{outline:none;}
 
 /* ═══ APP PRINCIPAL ═══ */
 #app{
-  position:fixed;inset:0;display:none;flex-direction:column;
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  display:none;flex-direction:column;
+  background:#F5F5F5;
 }
 
 /* ═══ TOPBAR ═══ */
@@ -85,20 +88,24 @@ button{cursor:pointer;}input,select,textarea{outline:none;}
 .tb-sair:hover{border-color:#EF5350;color:#EF5350;}
 
 /* ═══ CONTEÚDO ═══ */
-.conteudo{flex:1;display:flex;overflow:hidden;min-height:0;}
-.pagina{display:none;flex:1;overflow:hidden;min-height:0;}
+.conteudo{
+  flex:1;display:flex;overflow:hidden;min-height:0;
+  height:calc(100vh - 46px);
+}
+.pagina{display:none;flex:1;overflow:hidden;min-height:0;width:100%;height:100%;}
 .pagina.ativa{display:flex;}
 
 /* ═══ PAINEL DUPLO (Pedidos, Projetos, Clientes) ═══ */
-.painel-duplo{display:flex;flex:1;overflow:hidden;min-height:0;}
+.painel-duplo{display:flex;flex:1;overflow:hidden;min-height:0;height:100%;width:100%;}
 .painel-lista{
   width:42%;min-width:280px;max-width:480px;
   border-right:var(--bd);display:flex;flex-direction:column;
   overflow:hidden;background:#fff;flex-shrink:0;
+  height:100%;
 }
 .painel-detalhe{
   flex:1;min-width:0;display:flex;flex-direction:column;
-  overflow:hidden;background:var(--cinza2);
+  overflow:hidden;background:var(--cinza2);height:100%;
 }
 .painel-hdr{
   background:#fff;border-bottom:var(--bd);padding:8px 14px;
@@ -106,7 +113,7 @@ button{cursor:pointer;}input,select,textarea{outline:none;}
   gap:8px;flex-shrink:0;
 }
 .painel-titulo{font-size:13px;font-weight:700;}
-.painel-scroll{flex:1;overflow-y:auto;}
+.painel-scroll{flex:1;overflow-y:auto;min-height:0;}
 .detalhe-vazio{
   flex:1;display:flex;flex-direction:column;align-items:center;
   justify-content:center;color:var(--cinza5);gap:8px;
@@ -169,15 +176,15 @@ button{cursor:pointer;}input,select,textarea{outline:none;}
 
 /* ═══ NOVO PLANO — LAYOUT ═══ */
 #pg-novo{flex:1;overflow:hidden;min-height:0;}
-.novo-wrap{display:flex;width:100%;height:100%;overflow:hidden;}
+.novo-wrap{display:flex;width:100%;height:100%;overflow:hidden;flex:1;}
 .novo-form{
   width:680px;flex-shrink:0;overflow-y:auto;
   padding:18px 20px;background:var(--cinza2);
-  border-right:var(--bd);
+  border-right:var(--bd);height:100%;
 }
 .novo-resultado{
   flex:1;min-width:0;display:flex;flex-direction:column;
-  overflow:hidden;background:#fff;
+  overflow:hidden;background:#fff;height:100%;
 }
 .res-topo{
   background:#fff;border-bottom:var(--bd);padding:10px 14px;
