@@ -187,6 +187,79 @@ canvas{width:100%;height:auto;display:block;border:var(--bd);border-radius:4px;}
 .veio-mini canvas{display:block;}
 .veio-label{font-size:10px;color:var(--g500);text-align:center;margin-top:2px;font-weight:500;}
 .veio-dir{font-size:11px;color:var(--gd);font-weight:600;}
+/* ═══ MODULADOS ═══ */
+:root{
+  --g:#27AE60;--gd:#1E8449;--gl:#D5F5E3;--gll:#EAFAF1;
+  --g50:#F8F9FA;--g100:#F1F3F4;--g200:#E8EAED;--g300:#DADCE0;
+  --g500:#9AA0A6;--g700:#5F6368;--g900:#202124;
+  --red:#E74C3C;--redl:#FDECEA;--amber:#E67E22;--amberl:#FEF9E7;
+  --blue:#2980B9;--bluel:#EBF5FB;--bluem:#1a6fa8;
+  --wh:#FFF;--bd:1px solid #DADCE0;--r:8px;--rs:4px;--sh:0 1px 4px rgba(0,0,0,.09);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Inter',sans-serif;background:var(--g50);color:var(--g900);font-size:13px;}
+button,input,select{font-family:'Inter',sans-serif;cursor:pointer;}
+
+/* LAYOUT */
+.mod-wrap{display:flex;height:100%;flex-direction:column;}
+.mod-tabs{display:flex;gap:4px;padding:12px 16px 0;background:var(--wh);border-bottom:var(--bd);flex-shrink:0;flex-wrap:wrap;}
+.mod-tab{padding:8px 16px;border:none;border-bottom:3px solid transparent;background:none;font-size:13px;font-weight:500;color:var(--g500);border-radius:var(--rs) var(--rs) 0 0;}
+.mod-tab:hover{background:var(--g100);color:var(--g700);}
+.mod-tab.ativo{color:var(--gd);border-bottom-color:var(--gd);font-weight:700;}
+.mod-content{display:flex;flex:1;overflow:hidden;min-height:0;}
+
+/* BIBLIOTECA */
+.bib-panel{width:340px;flex-shrink:0;overflow-y:auto;padding:14px;background:var(--wh);border-right:var(--bd);}
+@media(max-width:767px){.bib-panel{width:100%;border-right:none;border-bottom:var(--bd);max-height:260px;}}
+.bib-titulo{font-size:11px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.07em;margin:10px 0 6px;}
+.bib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin-bottom:14px;}
+.bib-item{border:2px solid var(--g300);border-radius:6px;padding:10px 6px;text-align:center;cursor:pointer;transition:all .15s;background:var(--wh);}
+.bib-item:hover{border-color:var(--gd);background:var(--gll);}
+.bib-item.ativo{border-color:var(--gd);background:var(--gll);}
+.bib-icon{width:60px;height:50px;margin:0 auto 6px;display:block;}
+.bib-nome{font-size:10px;font-weight:600;color:var(--g700);line-height:1.3;}
+
+/* EDITOR */
+.editor-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+.editor-top{background:var(--wh);border-bottom:var(--bd);padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex-shrink:0;}
+.editor-title{font-size:14px;font-weight:700;flex:1;}
+.canvas-area{flex:1;overflow:auto;padding:20px;display:flex;align-items:flex-start;justify-content:center;background:#F0F0F0;}
+canvas#cv-mod{background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.15);cursor:crosshair;}
+.editor-bottom{background:var(--wh);border-top:var(--bd);padding:10px 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;flex-shrink:0;}
+
+/* PROPRIEDADES */
+.prop-panel{width:260px;flex-shrink:0;overflow-y:auto;padding:14px;background:var(--wh);border-left:var(--bd);}
+@media(max-width:767px){.prop-panel{width:100%;border-left:none;border-top:var(--bd);max-height:280px;}}
+.prop-sec{margin-bottom:16px;}
+.prop-titulo{font-size:11px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;}
+.prop-linha{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px;}
+.prop-label{font-size:12px;color:var(--g700);flex:1;}
+.prop-input{width:80px;padding:5px 8px;border:var(--bd);border-radius:var(--rs);font-size:12px;text-align:right;outline:none;}
+.prop-input:focus{border-color:var(--gd);}
+.prop-select{width:100%;padding:7px 8px;border:var(--bd);border-radius:var(--rs);font-size:12px;outline:none;margin-bottom:8px;}
+.prop-select:focus{border-color:var(--gd);}
+.prop-check{display:flex;align-items:center;gap:6px;margin-bottom:6px;font-size:12px;color:var(--g700);}
+
+/* BOTÕES */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 14px;border-radius:var(--rs);font-size:12px;font-weight:600;border:none;white-space:nowrap;transition:all .12s;}
+.btn-g{background:var(--gd);color:#fff;}.btn-g:hover{background:var(--g);}
+.btn-b{background:var(--blue);color:#fff;}.btn-b:hover{background:var(--bluem);}
+.btn-s{background:var(--wh);color:var(--g900);border:var(--bd);}.btn-s:hover{background:var(--g100);}
+.btn-r{background:var(--red);color:#fff;}
+.btn-am{background:var(--amber);color:#fff;}
+.btn-sm{padding:5px 10px;font-size:11px;}
+.btn-full{width:100%;}
+
+/* RESUMO PEÇAS */
+.peca-item{background:var(--g50);border:var(--bd);border-radius:var(--rs);padding:8px 10px;margin-bottom:5px;display:flex;align-items:center;justify-content:space-between;font-size:11px;}
+.peca-nm{font-weight:600;color:var(--g900);}
+.peca-dim{color:var(--g500);}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--g900);color:#fff;padding:10px 18px;border-radius:20px;font-size:12px;z-index:999;opacity:0;transition:all .25s;pointer-events:none;}
+.toast.show{opacity:1;}
+.fl{display:block;font-size:10px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;}
+.fi{width:100%;padding:7px 10px;border:var(--bd);border-radius:var(--rs);font-size:12px;outline:none;margin-bottom:8px;}
+.fi:focus{border-color:var(--gd);}
 .toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--g900);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:300;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
@@ -263,6 +336,10 @@ canvas{width:100%;height:auto;display:block;border:var(--bd);border-radius:4px;}
       <div class="sbs">Principal</div>
       <button class="sbi active" id="sb-inicio" onclick="nav('inicio')">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Início
+      </button>
+      <button class="sbi" id="sb-modulados" onclick="nav('modulados')">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Modulados
       </button>
       <button class="sbi" id="sb-pedidos" onclick="nav('pedidos')">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
@@ -470,7 +547,544 @@ canvas{width:100%;height:auto;display:block;border:var(--bd);border-radius:4px;}
 
     </div>
   </div>
+
+      <!-- MODULADOS -->
+      <div class="pg" id="pg-modulados" style="padding:0;max-width:100%;overflow:hidden;">
+        <div style="height:calc(100vh - 58px - 60px);overflow:hidden;display:flex;flex-direction:column;">
+          <div class="mod-wrap">
+  <!-- ABAS -->
+  <div class="mod-tabs">
+    <button class="mod-tab ativo" id="tab-bib" onclick="irTab('bib')">📚 Biblioteca</button>
+    <button class="mod-tab" id="tab-editor" onclick="irTab('editor')">✏️ Editor 2D</button>
+    <button class="mod-tab" id="tab-pecas" onclick="irTab('pecas')">📋 Peças geradas</button>
+  </div>
+
+  <!-- CONTEÚDO -->
+  <div class="mod-content">
+
+    <!-- ═══ BIBLIOTECA ═══ -->
+    <div id="tab-bib-content" style="flex:1;overflow-y:auto;padding:16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+        <div style="font-size:18px;font-weight:700;">Biblioteca de módulos</div>
+        <div style="display:flex;gap:6px;">
+          <select class="fi" style="width:auto;margin:0;padding:6px 10px;" id="sel-esp">
+            <option value="15">Esp. 15mm</option>
+            <option value="18">Esp. 18mm</option>
+          </select>
+          <button class="btn btn-g btn-sm" onclick="irTab('editor')">Abrir editor →</button>
+        </div>
+      </div>
+
+      <!-- BASE -->
+      <div class="bib-titulo">Armários Base (cozinha/balcão)</div>
+      <div class="bib-grid" id="grid-base"></div>
+
+      <!-- AÉREO -->
+      <div class="bib-titulo">Armários Aéreos</div>
+      <div class="bib-grid" id="grid-aereo"></div>
+
+      <!-- TORRE -->
+      <div class="bib-titulo">Torres e Paneleiros</div>
+      <div class="bib-grid" id="grid-torre"></div>
+
+      <!-- CLOSET -->
+      <div class="bib-titulo">Closet e Guarda-roupas</div>
+      <div class="bib-grid" id="grid-closet"></div>
+
+      <div style="background:var(--amberl);border:1px solid #FCD34D;border-radius:8px;padding:12px 14px;font-size:12px;color:#92400E;line-height:1.6;margin-top:8px;">
+        💡 Clique em um módulo para adicioná-lo ao editor. Você pode combinar vários módulos, ajustar dimensões e gerar a lista de peças automaticamente.
+      </div>
+    </div>
+
+    <!-- ═══ EDITOR 2D ═══ -->
+    <div id="tab-editor-content" style="display:none;flex:1;overflow:hidden;flex-direction:column;">
+      <div style="display:flex;flex:1;overflow:hidden;">
+        <!-- Canvas -->
+        <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+          <div class="editor-top">
+            <div class="editor-title" id="editor-title">Editor de modulados</div>
+            <button class="btn btn-s btn-sm" onclick="limparEditor()">🗑 Limpar</button>
+            <button class="btn btn-s btn-sm" onclick="desfazer()">↩ Desfazer</button>
+            <button class="btn btn-am btn-sm" onclick="irTab('bib')">+ Adicionar módulo</button>
+            <button class="btn btn-g" onclick="gerarPecas()">⚡ Gerar peças</button>
+          </div>
+          <div class="canvas-area" id="canvas-area">
+            <canvas id="cv-mod" width="800" height="500"></canvas>
+          </div>
+          <div class="editor-bottom">
+            <span style="font-size:11px;color:var(--g500);" id="editor-status">Nenhum módulo adicionado. Vá para a Biblioteca.</span>
+            <div style="margin-left:auto;display:flex;gap:6px;">
+              <button class="btn btn-s btn-sm" onclick="zoomIn()">🔍+</button>
+              <button class="btn btn-s btn-sm" onclick="zoomOut()">🔍-</button>
+              <button class="btn btn-s btn-sm" onclick="resetZoom()">1:1</button>
+            </div>
+          </div>
+        </div>
+        <!-- Propriedades -->
+        <div class="prop-panel">
+          <div class="prop-sec">
+            <div class="prop-titulo">Projeto</div>
+            <label class="fl">Nome do projeto</label>
+            <input class="fi" id="proj-nome" placeholder="Cozinha completa...">
+            <label class="fl">Material</label>
+            <select class="prop-select" id="proj-mat">
+              <option value="15">MDF 15mm</option>
+              <option value="18">MDF 18mm</option>
+              <option value="6">MDF 6mm (fundo)</option>
+            </select>
+          </div>
+          <div class="prop-sec" id="mod-props" style="display:none;">
+            <div class="prop-titulo">Módulo selecionado</div>
+            <div id="mod-props-content"></div>
+          </div>
+          <div class="prop-sec">
+            <div class="prop-titulo">Módulos na cena</div>
+            <div id="lista-mods-cena">
+              <div style="font-size:11px;color:var(--g500);text-align:center;padding:10px;">Nenhum módulo</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PEÇAS GERADAS ═══ -->
+    <div id="tab-pecas-content" style="display:none;flex:1;overflow-y:auto;padding:16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+        <div style="font-size:18px;font-weight:700;">Peças geradas</div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-s btn-sm" id="btn-exportar" onclick="exportarParaPlano()" style="display:none;">↗ Enviar para plano de corte</button>
+        </div>
+      </div>
+      <div id="pecas-lista">
+        <div class="vazio" style="text-align:center;padding:40px;color:var(--g500);">
+          <div style="font-size:32px;margin-bottom:10px;">📐</div>
+          <div style="font-size:15px;font-weight:600;margin-bottom:5px;">Nenhuma peça gerada</div>
+          <div style="font-size:12px;">Monte seu modulado no editor e clique em "Gerar peças"</div>
+        </div>
+      </div>
+      <div id="pecas-resumo" style="display:none;margin-top:14px;">
+        <div style="background:var(--gll);border:1px solid var(--gl);border-radius:8px;padding:12px 16px;font-size:12px;color:var(--g);">
+          <b id="resumo-total">0 peças</b> geradas · Área total: <b id="resumo-area">0 m²</b>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+          <button class="btn btn-g" onclick="exportarParaPlano()">↗ Enviar para plano de corte</button>
+          <button class="btn btn-s btn-sm" onclick="exportarCSVMod()">↓ CSV Titanio</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══ BIBLIOTECA DE MÓDULOS ═══
+var MODULOS = {
+  base: [
+    {id:'b1p', nome:'1 Porta', w:600, h:720, p:580, desc:'Base c/ 1 porta', tipo:'base',
+     conf:{portas:1, gavetas:0, prateleiras:1, fundo:true, tampo:true, rodape:80}},
+    {id:'b2p', nome:'2 Portas', w:900, h:720, p:580, desc:'Base c/ 2 portas', tipo:'base',
+     conf:{portas:2, gavetas:0, prateleiras:1, fundo:true, tampo:true, rodape:80}},
+    {id:'b3g', nome:'3 Gavetas', w:600, h:720, p:580, desc:'Base c/ 3 gavetas', tipo:'base',
+     conf:{portas:0, gavetas:3, prateleiras:0, fundo:true, tampo:true, rodape:80}},
+    {id:'b1p2g', nome:'1P + 2 Gav.', w:800, h:720, p:580, desc:'Base mista', tipo:'base',
+     conf:{portas:1, gavetas:2, prateleiras:1, fundo:true, tampo:true, rodape:80}},
+    {id:'bpia', nome:'Pia/Cuba', w:900, h:720, p:580, desc:'Base para pia', tipo:'base',
+     conf:{portas:2, gavetas:0, prateleiras:0, fundo:true, tampo:false, rodape:80, pia:true}},
+    {id:'bcantos', nome:'Canto Cego', w:900, h:720, p:900, desc:'Base de canto', tipo:'base',
+     conf:{portas:1, gavetas:0, prateleiras:1, fundo:true, tampo:true, rodape:80, canto:true}},
+  ],
+  aereo: [
+    {id:'a1p', nome:'1 Porta', w:600, h:700, p:320, desc:'Aéreo 1 porta', tipo:'aereo',
+     conf:{portas:1, prateleiras:2, fundo:true}},
+    {id:'a2p', nome:'2 Portas', w:900, h:700, p:320, desc:'Aéreo 2 portas', tipo:'aereo',
+     conf:{portas:2, prateleiras:2, fundo:true}},
+    {id:'a3p', nome:'3 Portas', w:1200, h:700, p:320, desc:'Aéreo 3 portas', tipo:'aereo',
+     conf:{portas:3, prateleiras:2, fundo:true}},
+    {id:'avidro', nome:'Vidro', w:600, h:700, p:320, desc:'Aéreo c/ vidro', tipo:'aereo',
+     conf:{portas:1, prateleiras:2, fundo:true, vidro:true}},
+    {id:'aberto', nome:'Aberto', w:600, h:700, p:320, desc:'Nicho aberto', tipo:'aereo',
+     conf:{portas:0, prateleiras:3, fundo:true}},
+    {id:'acantos', nome:'Canto', w:700, h:700, p:700, desc:'Aéreo de canto', tipo:'aereo',
+     conf:{portas:1, prateleiras:2, fundo:true, canto:true}},
+  ],
+  torre: [
+    {id:'t1p', nome:'Torre 1P', w:600, h:2200, p:580, desc:'Torre 1 porta', tipo:'torre',
+     conf:{portas:1, prateleiras:4, fundo:true, tampo:true, rodape:80}},
+    {id:'t2p', nome:'Torre 2P', w:600, h:2200, p:580, desc:'Torre 2 portas', tipo:'torre',
+     conf:{portas:2, prateleiras:3, fundo:true, tampo:true, rodape:80}},
+    {id:'tpan', nome:'Paneleiro', w:300, h:2200, p:580, desc:'Paneleiro alto', tipo:'torre',
+     conf:{portas:2, prateleiras:5, fundo:true, tampo:true, rodape:80}},
+    {id:'tgab', nome:'Gabinete', w:450, h:2200, p:580, desc:'Gabinete multiuso', tipo:'torre',
+     conf:{portas:1, gavetas:2, prateleiras:2, fundo:true, tampo:true, rodape:80}},
+  ],
+  closet: [
+    {id:'c1s', nome:'1 Seção', w:1000, h:2200, p:600, desc:'Closet 1 seção', tipo:'closet',
+     conf:{portas:2, cabideiro:1, prateleiras:2, gavetas:1, fundo:false, tampo:true, rodape:80}},
+    {id:'c2s', nome:'2 Seções', w:2000, h:2200, p:600, desc:'Closet 2 seções', tipo:'closet',
+     conf:{portas:4, cabideiro:2, prateleiras:3, gavetas:2, fundo:false, tampo:true, rodape:80}},
+    {id:'cgr', nome:'Guarda-roupa', w:2400, h:2200, p:600, desc:'Guarda-roupa completo', tipo:'closet',
+     conf:{portas:6, cabideiro:2, prateleiras:4, gavetas:3, fundo:false, tampo:true, rodape:80}},
+    {id:'cabert', nome:'Aberto', w:1200, h:2200, p:500, desc:'Closet aberto', tipo:'closet',
+     conf:{portas:0, cabideiro:1, prateleiras:4, gavetas:0, fundo:false, tampo:true, rodape:80}},
+  ]
+};
+
+// ═══ ESTADO ═══
+var mod_cena = []; // módulos na mod_cena
+var mod_modSel = null; // módulo selecionado
+var mod_zoom = 0.4;
+var mod_KERF = 18; // espessura MDF padrão
+var mod_pecasGeradas = [];
+
+function $m(id){return document.getElementById(id);}
+function toastM(m,ok){var e=document.getElementById('toast');e.textContent=m;e.style.background=ok===false?'#E74C3C':'#202124';e.classList.add('show');setTimeout(function(){e.classList.remove('show');},2600);}
+
+// ═══ ABAS ═══
+function irTabMod(t){
+  ['bib','editor','pecas'].forEach(function(x){
+    $m('tab-'+x).classList.remove('ativo');
+    var c=$m('tab-'+x+'-content');if(c)c.style.display='none';
+  });
+  $m('tab-'+t).classList.add('ativo');
+  var c=$m('tab-'+t+'-content');if(c)c.style.display=t==='bib'?'block':'flex';
+  if(t==='editor')redesenharMod();
+  if(t==='pecas')renderPecasMod();
+}
+
+// ═══ RENDERIZA BIBLIOTECA ═══
+function renderBibMod(){
+  var tipos={base:'grid-base',aereo:'grid-aereo',torre:'grid-torre',closet:'grid-closet'};
+  Object.keys(tipos).forEach(function(tipo){
+    var mods=MODULOS[tipo]||[];
+    var el=$m(tipos[tipo]);if(!el)return;
+    el.innerHTML=mods.map(function(m){
+      return '<div class="bib-item" onclick="addModBib(\''+m.id+'\',\''+tipo+'\')" title="'+m.desc+'">'+
+        '<svg class="bib-icon" viewBox="0 0 60 50">'+getModSVGBib(m)+'</svg>'+
+        '<div class="bib-nome">'+m.nome+'<br><span style="font-weight:400;color:var(--g500);">'+m.w+'×'+m.h+'</span></div>'+
+        '</div>';
+    }).join('');
+  });
+}
+
+function getModSVGBib(m){
+  var t=m.tipo;
+  if(t==='base')return '<rect x="2" y="20" width="56" height="28" rx="1" fill="#D4E9F7" stroke="#2980B9" stroke-width="1.5"/><line x1="28" y1="20" x2="28" y2="48" stroke="#2980B9" stroke-width="1"/><rect x="2" y="17" width="56" height="3" fill="#5DADE2"/><rect x="2" y="45" width="56" height="3" fill="#85C1E9"/><circle cx="22" cy="34" r="2" fill="#2980B9"/><circle cx="38" cy="34" r="2" fill="#2980B9"/>';
+  if(t==='aereo')return '<rect x="2" y="5" width="56" height="40" rx="1" fill="#D5F5E3" stroke="#27AE60" stroke-width="1.5"/><line x1="29" y1="5" x2="29" y2="45" stroke="#27AE60" stroke-width="1"/><line x1="2" y1="25" x2="58" y2="25" stroke="#27AE60" stroke-width=".8"/><circle cx="23" cy="25" r="2" fill="#27AE60"/><circle cx="35" cy="25" r="2" fill="#27AE60"/>';
+  if(t==='torre')return '<rect x="12" y="2" width="36" height="46" rx="1" fill="#FAD7A0" stroke="#E67E22" stroke-width="1.5"/><line x1="30" y1="2" x2="30" y2="48" stroke="#E67E22" stroke-width="1"/><line x1="12" y1="15" x2="48" y2="15" stroke="#E67E22" stroke-width=".8"/><line x1="12" y1="30" x2="48" y2="30" stroke="#E67E22" stroke-width=".8"/><circle cx="24" cy="24" r="2" fill="#E67E22"/><circle cx="36" cy="24" r="2" fill="#E67E22"/>';
+  if(t==='closet')return '<rect x="2" y="2" width="56" height="46" rx="1" fill="#E8DAEF" stroke="#8E44AD" stroke-width="1.5"/><line x1="20" y1="2" x2="20" y2="48" stroke="#8E44AD" stroke-width="1"/><line x1="40" y1="2" x2="40" y2="48" stroke="#8E44AD" stroke-width="1"/><line x1="2" y1="30" x2="58" y2="30" stroke="#8E44AD" stroke-width=".8"/><line x1="5" y1="15" x2="17" y2="15" stroke="#8E44AD" stroke-width="2"/><line x1="43" y1="15" x2="55" y2="15" stroke="#8E44AD" stroke-width="2"/>';
+  return '<rect x="5" y="5" width="50" height="40" rx="2" fill="#E8E8E8" stroke="#999" stroke-width="1.5"/>';
+}
+
+// ═══ ADICIONAR MÓDULO ═══
+var modY = 0; // posição Y acumulada na mod_cena
+function addModBib(id, tipo){
+  var lista = MODULOS[tipo]||[];
+  var def = lista.find(function(m){return m.id===id;});
+  if(!def)return;
+  var esp = parseInt($m('sel-esp').value)||15;
+  var mod = JSON.parse(JSON.stringify(def)); // clone
+  mod.uid = Date.now()+'_'+Math.random().toString(36).slice(2);
+  mod.x = mod_cena.length*20; // offset para não sobrepor
+  mod.y = 0;
+  mod.esp = esp;
+  mod_cena.push(mod);
+  toastM('Módulo "'+mod.nome+'" adicionado!');
+  irTabMod('editor');
+  redesenharMod();
+  atualizarListaCenaMod();
+}
+
+// ═══ CANVAS / DESENHO 2D ═══
+var offsetX = 0, offsetY = 0;
+var dragging = false, dragMod = null, dragStartX = 0, dragStartY = 0;
+
+function redesenharMod(){
+  var cv = $m('cv-mod');if(!cv)return;
+  var ctx = cv.getContext('2d');
+  var W = 800, H = 500;
+  cv.width = W; cv.height = H;
+  ctx.fillStyle = '#F0F0F0';ctx.fillRect(0,0,W,H);
+  // Grade
+  ctx.strokeStyle = 'rgba(0,0,0,.06)';ctx.lineWidth = 1;
+  for(var gx=0;gx<W;gx+=50*mod_zoom){ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,H);ctx.stroke();}
+  for(var gy=0;gy<H;gy+=50*mod_zoom){ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(W,gy);ctx.stroke();}
+  if(!mod_cena.length){
+    ctx.fillStyle='rgba(0,0,0,.2)';ctx.font='14px Inter,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('Vá para a Biblioteca e adicione módulos',W/2,H/2);return;
+  }
+  // Calcula posição automática dos módulos (um ao lado do outro)
+  var posX = 20;
+  mod_cena.forEach(function(mod, i){
+    var mW = mod.w * mod_zoom;
+    var mH = mod.h * mod_zoom;
+    var mX = posX;
+    var mY = H - 40 - mH; // alinha pela base
+    mod._rx = mX; mod._ry = mY; mod._rw = mW; mod._rh = mH;
+    var cor = {base:'#D4E9F7',aereo:'#D5F5E3',torre:'#FAD7A0',closet:'#E8DAEF'}[mod.tipo]||'#E8E8E8';
+    var bord = {base:'#2980B9',aereo:'#27AE60',torre:'#E67E22',closet:'#8E44AD'}[mod.tipo]||'#999';
+    // Fundo
+    ctx.fillStyle = cor;ctx.fillRect(mX,mY,mW,mH);
+    // Detalhes internos
+    desenharModuloMod(ctx,mod,mX,mY,mW,mH,bord);
+    // Borda selecionado
+    ctx.strokeStyle = mod.uid===mod_modSel?.uid?'#E74C3C':bord;
+    ctx.lineWidth = mod.uid===mod_modSel?.uid?3:1.5;
+    ctx.strokeRect(mX,mY,mW,mH);
+    // Nome e dimensões
+    ctx.fillStyle='rgba(0,0,0,.7)';ctx.font='bold '+Math.min(11,mW/8)+'px Inter,sans-serif';
+    ctx.textAlign='center';ctx.textBaseline='top';
+    ctx.fillText(mod.nome,mX+mW/2,mY+4);
+    // Cotas
+    ctx.fillStyle='#333';ctx.font='9px Arial';ctx.textAlign='center';ctx.textBaseline='top';
+    ctx.fillText(mod.w+'mm',mX+mW/2,mY+mH+4);
+    ctx.save();ctx.translate(mX-4,mY+mH/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.fillText(mod.h+'mm',0,0);ctx.restore();
+    posX += mW + 12;
+  });
+  // Linha do chão
+  ctx.strokeStyle='#999';ctx.lineWidth=2;ctx.setLineDash([6,3]);
+  ctx.beginPath();ctx.moveTo(10,H-38);ctx.lineTo(W-10,H-38);ctx.stroke();ctx.setLineDash([]);
+  // Status
+  $m('editor-status').textContent = mod_cena.length+' módulo(s) · Largura total: '+mod_cena.reduce(function(a,m){return a+m.w;},0)+'mm';
+}
+
+function desenharModuloMod(ctx,mod,x,y,w,h,cor){
+  var c=mod.conf||{};
+  ctx.strokeStyle=cor;ctx.lineWidth=.8;
+  var esp=mod.esp||15;var ez=esp*mod_zoom;
+  // Divisória central
+  if(c.portas>1||(c.prateleiras&&c.prateleiras>1)){
+    for(var i=1;i<c.portas;i++){var px=x+i*(w/c.portas);ctx.beginPath();ctx.moveTo(px,y);ctx.lineTo(px,y+h);ctx.stroke();}
+  }
+  // Prateleiras
+  if(c.prateleiras){
+    var nP=c.prateleiras;
+    var rodZ=(c.rodape||0)*mod_zoom;
+    var dispH=h-rodZ-ez;
+    for(var p=1;p<=nP;p++){
+      var py=y+p*(dispH/(nP+1));
+      ctx.beginPath();ctx.moveTo(x+ez,py);ctx.lineTo(x+w-ez,py);ctx.stroke();
+    }
+  }
+  // Rodapé
+  if(c.rodape){ctx.fillStyle='rgba(0,0,0,.1)';ctx.fillRect(x+2,y+h-(c.rodape*mod_zoom),w-4,c.rodape*mod_zoom);}
+  // Tampo
+  if(c.tampo){ctx.fillStyle='rgba(0,0,0,.08)';ctx.fillRect(x,y,w,ez);}
+  // Gavetas
+  if(c.gavetas){
+    var rodZ2=(c.rodape||0)*mod_zoom;
+    var gH=Math.min((h-rodZ2-ez)/c.gavetas,60*mod_zoom);
+    for(var g=0;g<c.gavetas;g++){
+      var gy2=y+h-rodZ2-ez-(g+1)*gH;
+      ctx.fillStyle='rgba(255,255,255,.4)';ctx.fillRect(x+ez+2,gy2+2,w-ez*2-4,gH-4);
+      ctx.strokeRect(x+ez+2,gy2+2,w-ez*2-4,gH-4);
+      // Puxador gaveta
+      var puxW=w*0.3;ctx.fillStyle='rgba(0,0,0,.2)';ctx.fillRect(x+w/2-puxW/2,gy2+gH/2-3,puxW,6);
+    }
+  }
+  // Cabideiro (closet)
+  if(c.cabideiro){
+    ctx.strokeStyle=cor;ctx.lineWidth=1.5;
+    var cabY=y+h*0.35;
+    ctx.beginPath();ctx.moveTo(x+ez+4,cabY);ctx.lineTo(x+w-ez-4,cabY);ctx.stroke();
+    // Cabo cabide
+    ctx.beginPath();ctx.arc(x+w/2,cabY,4,0,Math.PI*2);ctx.stroke();
+  }
+  // Puxadores portas
+  if(c.portas){
+    for(var po=0;po<c.portas;po++){
+      var px2=x+po*(w/c.portas)+((w/c.portas)*0.8);
+      var py2=y+h/2;
+      ctx.fillStyle='rgba(0,0,0,.25)';
+      ctx.beginPath();ctx.arc(px2,py2,3,0,Math.PI*2);ctx.fill();
+    }
+  }
+}
+
+// Clique para selecionar módulo
+$m('cv-mod').addEventListener('click',function(e){
+  var rect=this.getBoundingClientRect();
+  var cx=e.clientX-rect.left,cy=e.clientY-rect.top;
+  mod_modSel=null;
+  mod_cena.forEach(function(mod){
+    if(cx>=mod._rx&&cx<=mod._rx+mod._rw&&cy>=mod._ry&&cy<=mod._ry+mod._rh)mod_modSel=mod;
+  });
+  redesenharMod();
+  if(mod_modSel)mostrarPropsMod(mod_modSel);
+  else $m('mod-props').style.display='none';
+});
+
+function mostrarPropsMod(mod){
+  $m('mod-props').style.display='block';
+  var c=mod.conf||{};
+  $m('mod-props-content').innerHTML=
+    '<div class="prop-linha"><span class="prop-label">Largura (mm)</span><input class="prop-input" type="number" value="'+mod.w+'" onchange="updModProp(\'w\',this.value)"></div>'+
+    '<div class="prop-linha"><span class="prop-label">Altura (mm)</span><input class="prop-input" type="number" value="'+mod.h+'" onchange="updModProp(\'h\',this.value)"></div>'+
+    '<div class="prop-linha"><span class="prop-label">Profundidade</span><input class="prop-input" type="number" value="'+mod.p+'" onchange="updModProp(\'p\',this.value)"></div>'+
+    (c.prateleiras!==undefined?'<div class="prop-linha"><span class="prop-label">Prateleiras</span><input class="prop-input" type="number" min="0" max="10" value="'+(c.prateleiras||0)+'" onchange="updConfMod(\'prateleiras\',this.value)"></div>':'')+
+    (c.portas!==undefined?'<div class="prop-linha"><span class="prop-label">Portas</span><input class="prop-input" type="number" min="0" max="6" value="'+(c.portas||0)+'" onchange="updConfMod(\'portas\',this.value)"></div>':'')+
+    (c.gavetas!==undefined?'<div class="prop-linha"><span class="prop-label">Gavetas</span><input class="prop-input" type="number" min="0" max="6" value="'+(c.gavetas||0)+'" onchange="updConfMod(\'gavetas\',this.value)"></div>':'')+
+    '<div style="display:flex;gap:6px;margin-top:10px;">'+
+      '<button class="btn btn-r btn-sm btn-full" onclick="removerModBib()">🗑 Remover</button>'+
+    '</div>';
+}
+
+function updModProp(campo,val){if(!mod_modSel)return;mod_modSel[campo]=parseFloat(val)||mod_modSel[campo];redesenharMod();}
+function updConfMod(campo,val){if(!mod_modSel)return;if(!mod_modSel.conf)mod_modSel.conf={};mod_modSel.conf[campo]=parseInt(val)||0;redesenharMod();}
+function removerModBib(){if(!mod_modSel)return;mod_cena=mod_cena.filter(function(m){return m.uid!==mod_modSel.uid;});mod_modSel=null;$m('mod-props').style.display='none';redesenharMod();atualizarListaCenaMod();}
+function limparEditorMod(){if(!mod_cena.length)return;if(confirm('Limpar todos os módulos?')){mod_cena=[];mod_modSel=null;$m('mod-props').style.display='none';redesenharMod();atualizarListaCenaMod();}}
+function desfazarMod(){if(!mod_cena.length)return;mod_cena.pop();redesenharMod();atualizarListaCenaMod();}
+function zoomInMod(){mod_zoom=Math.min(mod_zoom*1.2,2);redesenharMod();}
+function zoomOutMod(){mod_zoom=Math.max(mod_zoom/1.2,0.1);redesenharMod();}
+function resetZoomMod(){mod_zoom=0.4;redesenharMod();}
+
+function atualizarListaCenaMod(){
+  var el=$m('lista-mods-mod_cena');
+  if(!mod_cena.length){el.innerHTML='<div style="font-size:11px;color:var(--g500);text-align:center;padding:10px;">Nenhum módulo</div>';return;}
+  el.innerHTML=mod_cena.map(function(m,i){
+    return '<div style="display:flex;align-items:center;gap:6px;padding:5px 6px;border:var(--bd);border-radius:4px;margin-bottom:4px;font-size:11px;cursor:pointer;'+(mod_modSel&&mod_modSel.uid===m.uid?'background:var(--gll);':'')+'\" onclick=\"selModBib(\''+m.uid+'\')\">'+
+      '<span style="flex:1;font-weight:600;">'+m.nome+'</span>'+
+      '<span style="color:var(--g500);">'+m.w+'×'+m.h+'</span>'+
+      '<button onclick="event.stopPropagation();remModBib(\''+m.uid+'\')" style="border:none;background:none;color:var(--g500);font-size:14px;cursor:pointer;">×</button>'+
+      '</div>';
+  }).join('');
+}
+function selModBib(uid){mod_modSel=mod_cena.find(function(m){return m.uid===uid;})||null;redesenharMod();if(mod_modSel)mostrarPropsMod(mod_modSel);}
+function remModBib(uid){mod_cena=mod_cena.filter(function(m){return m.uid!==uid;});if(mod_modSel&&mod_modSel.uid===uid){mod_modSel=null;$m('mod-props').style.display='none';}redesenharMod();atualizarListaCenaMod();}
+
+// ═══ GERAR PEÇAS ═══
+function gerarPecasMod(){
+  if(!mod_cena.length){toastM('Adicione módulos primeiro',false);return;}
+  mod_pecasGeradas=[];
+  mod_cena.forEach(function(mod){
+    var pc=calcularPecasMod(mod);
+    mod_pecasGeradas=mod_pecasGeradas.concat(pc);
+  });
+  irTabMod('pecas');
+  toastM('✓ '+mod_pecasGeradas.length+' peças geradas!');
+}
+
+function calcularPecasMod(mod){
+  var pcs=[];
+  var w=mod.w,h=mod.h,p=mod.p,esp=mod.esp||15;
+  var c=mod.conf||{};
+  var nome=mod.nome;
+  // Partes internas
+  var hi=h-(c.rodape||0);  // altura interna (sem rodapé)
+  var wi=w-esp*2;          // largura interna (sem laterais)
+  var pi=p-esp;            // profundidade interna (sem fundo)
+
+  // LATERAIS (2x)
+  pcs.push({nome:nome+' — Lateral',c:hi,l:p,q:2,esp:esp,borda:{t:true,b:false,l:false,r:false}});
+  // FUNDO
+  if(c.fundo)pcs.push({nome:nome+' — Fundo',c:hi-esp,l:wi,q:1,esp:6,borda:{t:false,b:false,l:false,r:false}});
+  // TAMPO
+  if(c.tampo)pcs.push({nome:nome+' — Tampo',c:w,l:p,q:1,esp:esp,borda:{t:false,b:false,l:true,r:true}});
+  // BASE (sem tampo = só base interna)
+  if(!c.tampo)pcs.push({nome:nome+' — Base',c:wi,l:pi,q:1,esp:esp,borda:{t:false,b:false,l:false,r:false}});
+  // BASE INTERNA
+  pcs.push({nome:nome+' — Base int.',c:wi,l:pi,q:1,esp:esp,borda:{t:false,b:false,l:false,r:false}});
+  // PRATELEIRAS
+  if(c.prateleiras&&c.prateleiras>0){pcs.push({nome:nome+' — Prateleira',c:wi,l:pi,q:c.prateleiras,esp:esp,borda:{t:false,b:false,l:true,r:true}});}
+  // DIVISÓRIAS
+  var ndiv=c.portas>1?c.portas-1:0;
+  if(ndiv>0)pcs.push({nome:nome+' — Divisória',c:hi-esp*2,l:pi,q:ndiv,esp:esp,borda:{t:false,b:false,l:false,r:false}});
+  // PORTAS
+  if(c.portas>0){
+    var pw=Math.round((w-esp*2)/c.portas)-2;
+    var ph=c.gavetas>0?Math.round((hi-esp*2)*(0.6)):hi-esp*2;
+    pcs.push({nome:nome+' — Porta',c:ph,l:pw,q:c.portas,esp:esp,borda:{t:true,b:true,l:true,r:true}});
+  }
+  // GAVETAS (frente)
+  if(c.gavetas&&c.gavetas>0){
+    var gh=Math.round((hi-esp*2)*0.4/c.gavetas);
+    pcs.push({nome:nome+' — Frente gaveta',c:gh-2,l:wi-2,q:c.gavetas,esp:esp,borda:{t:true,b:true,l:true,r:true}});
+    pcs.push({nome:nome+' — Corpo gaveta lat.',c:gh-esp*2,l:pi*0.8,q:c.gavetas*2,esp:15,borda:{}});
+    pcs.push({nome:nome+' — Corpo gaveta fund.',c:gh-esp*2,l:wi-esp*2,q:c.gavetas,esp:6,borda:{}});
+  }
+  // CABIDEIRO
+  if(c.cabideiro&&c.cabideiro>0)pcs.push({nome:nome+' — Suporte cabideiro',c:80,l:50,q:c.cabideiro*2,esp:esp,borda:{}});
+  // RODAPÉ
+  if(c.rodape&&c.rodape>0)pcs.push({nome:nome+' — Rodapé',c:c.rodape,l:w-20,q:1,esp:esp,borda:{}});
+  return pcs;
+}
+
+function renderPecasMod(){
+  var el=$m('pecas-lista');
+  if(!mod_pecasGeradas.length){
+    el.innerHTML='<div style="text-align:center;padding:40px;color:var(--g500);"><div style="font-size:32px;margin-bottom:10px;">📐</div><div style="font-size:15px;font-weight:600;margin-bottom:5px;">Nenhuma peça gerada</div><div style="font-size:12px;">Monte seu modulado no editor e clique em "Gerar peças"</div></div>';
+    $m('pecas-resumo').style.display='none';return;
+  }
+  var total=mod_pecasGeradas.reduce(function(a,p){return a+p.q;},0);
+  var area=mod_pecasGeradas.reduce(function(a,p){return a+p.c*p.l*p.q/1000000;},0);
+  $m('resumo-total').textContent=total+' peças';
+  $m('resumo-area').textContent=area.toFixed(3)+' m²';
+  $m('pecas-resumo').style.display='block';
+  // Agrupa por módulo
+  el.innerHTML='<table style="width:100%;border-collapse:collapse;font-size:12px;">'+
+    '<thead><tr style="background:var(--g50);">'+
+    '<th style="border:1px solid var(--g200);padding:6px 10px;text-align:left;">Nome</th>'+
+    '<th style="border:1px solid var(--g200);padding:6px 10px;text-align:left;">Compr. C</th>'+
+    '<th style="border:1px solid var(--g200);padding:6px 10px;text-align:left;">Larg. L</th>'+
+    '<th style="border:1px solid var(--g200);padding:6px 10px;text-align:left;">Qtd</th>'+
+    '<th style="border:1px solid var(--g200);padding:6px 10px;text-align:left;">Esp.</th>'+
+    '<th style="border:1px solid var(--g200);padding:6px 10px;text-align:left;">Fita</th>'+
+    '</tr></thead><tbody>'+
+    mod_pecasGeradas.map(function(p,i){
+      var b=p.borda||{},bl=[b.t?'C':'',b.b?'B':'',b.l?'E':'',b.r?'D':''].filter(Boolean).join('+');
+      return '<tr style="background:'+(i%2===0?'#fff':'var(--g50)')+';">'+
+        '<td style="border:1px solid var(--g200);padding:5px 10px;font-weight:600;">'+p.nome+'</td>'+
+        '<td style="border:1px solid var(--g200);padding:5px 10px;">'+p.c+'mm</td>'+
+        '<td style="border:1px solid var(--g200);padding:5px 10px;">'+p.l+'mm</td>'+
+        '<td style="border:1px solid var(--g200);padding:5px 10px;font-weight:700;">'+p.q+'</td>'+
+        '<td style="border:1px solid var(--g200);padding:5px 10px;">'+p.esp+'mm</td>'+
+        '<td style="border:1px solid var(--g200);padding:5px 10px;">'+(bl||'—')+'</td>'+
+        '</tr>';
+    }).join('')+'</tbody></table>';
+}
+
+// ═══ EXPORTAR ═══
+function exportarParaPlanoBib(){
+  if(!mod_pecasGeradas.length){toastM('Gere as peças primeiro',false);return;}
+  // Envia para o app do marceneiro via postMessage ou localStorage
+  var dados={pecas:mod_pecasGeradas,nome:$m('proj-nome').value||'Modulado'};
+  try{
+    window.parent.postMessage({tipo:'modulado',dados:dados},'*');
+    toastM('Peças enviadas para o plano de corte!');
+  }catch(e){
+    // Fallback: salva no localStorage para o app ler
+    localStorage.setItem('pc_modulado_temp',JSON.stringify(dados));
+    toastM('Peças salvas! Abra "Novo plano" para usar.');
+  }
+}
+
+function exportarCSVModBib(){
+  if(!mod_pecasGeradas.length){toastM('Gere as peças primeiro',false);return;}
+  var rows=['Qtd;CompC;LargL;Nome;FitaCima;FitaBaixo;FitaEsq;FitaDir;Material;Espessura'];
+  mod_pecasGeradas.forEach(function(p){
+    var b=p.borda||{};
+    rows.push([p.q,p.c,p.l,p.nome,b.t?'S':'N',b.b?'S':'N',b.l?'S':'N',b.r?'S':'N','MDF',p.esp].join(';'));
+  });
+  var blob=new Blob([rows.join('\r\n')],{type:'text/csv'});
+  var url=URL.createObjectURL(blob);var a=document.createElement('a');
+  a.href=url;a.download='modulado_titanio.csv';document.body.appendChild(a);a.click();
+  setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},500);
+  toastM('CSV exportado!');
+}
+
+// ═══ INIT ═══
+renderBibMod();
+redesenharMod();
+</script>
+        </div>
+      </div>
+
   <nav class="bn">
+  <button class="bnb" id="bn-modulados" onclick="nav('modulados')">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    Modulados
+  </button>
     <button class="bnb active" id="bn-inicio" onclick="nav('inicio')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Início</button>
     <button class="bnb" id="bn-pedidos" onclick="nav('pedidos')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Pedidos</button>
     <button class="bnb" id="bn-novo" onclick="nav('novo')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Novo</button>
